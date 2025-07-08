@@ -1,0 +1,15 @@
+<div class="md:hidden">
+    <div class="flex flex-col gap-[4.5px] cursor-pointer" (click)="isOpenMenu()">
+        <div [ngClass]="['w-6 h-1 bg-[var(--primary)] rounded-sm', isOpen ? 'rotate-45' : '', 'origin-left ease-in-out duration-500']"></div>
+        <div [ngClass]="['w-6 h-1 bg-[var(--primary)] rounded-sm', isOpen ? 'opacity-0' : '', 'ease-in-out duration-500']"></div>
+        <div [ngClass]="['w-6 h-1 bg-[var(--primary)] rounded-sm', isOpen ? '-rotate-45' : '', 'origin-left ease-in-out duration-500']"></div>
+
+    <div *ngIf="isOpen" [ngClass]="['absolute left-0 top-[60px] flex flex-col gap-5 shadow-xl w-full h-[calc(70vh-60px)] bg-[var(--white)] text-[var(--primary)] text-xl font-medium z-3 rounded-bl-4xl rounded-br-4xl']">
+        <div class="mt-[1rem] ml-[1rem]" routerLink="">Home</div>
+        <div class="ml-[1rem]" routerLink="">Friends</div>
+        <div class="ml-[1rem]" routerLink="">Members</div>
+        <div class="ml-[1rem]" routerLink="">Stories</div>
+        <div class="ml-[1rem]" routerLink="">Login</div>
+    </div>
+    </div>
+</div>

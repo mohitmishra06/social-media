@@ -1,0 +1,27 @@
+<div class="p-4 rounded-lg shadow-xl bg-[var(--white)] text-sm">
+    <!-- Top -->
+    <div class="flex items-center justify-between text-gray-500 font-medium">
+        <span>Sponsord Ads</span>
+        <div class="flex items-center justify-center bg-[#f5f5f5] w-11 h-11 rounded-full">
+            <img src="./images/more.png" alt="more" class="w-5 h-5">
+        </div>
+    </div>
+    <!-- Bottom -->
+    <div [class]="(size === 'sm') ? 'flex flex-col mt-4 gap-2' : 'flex flex-col mt-4 gap-4'">
+        <div [class]="(size === 'sm') ? 'relative w-full h-24' : (size === 'md') ? 'relative w-full h-36' : 'relative w-full h-48'">
+            <img src="https://images.pexels.com/photos/25742697/pexels-photo-25742697.jpeg" alt="ad-image" class="rounded-lg object-cover">
+        </div>        
+        <div class="flex items-center gap-4 mt-4">
+            <img src="https://images.pexels.com/photos/25742697/pexels-photo-25742697.jpeg" alt="ad-image" class="rounded-full object-cover w-6 h-6">
+            <span class="text-green-400 font-medium text-xs">ByMohitMishra</span>
+        </div>
+        <p [class]="(size === 'sm') ? 'text-xs' : 'text-sm'">
+            {{
+                (size === "sm") ? "Lorem ipsum dolor sit amet consectetur adipisicing elit"
+                : (size === "md") ? "Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium eos voluptatum, dicta mollitia rem, maiores neque"
+                : "Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium eos voluptatum, dicta mollitia rem, maiores neque dolorem modi consequatur deserunt minus ipsam aspernatur! Totam, perspiciatis voluptas! Harum nam sint vitae?"
+            }}
+        </p>
+        <button class="bg-gray-200 text-gray-500 p-2 text-xs rounded-lg cursor-pointer">Learn more</button>
+    </div>
+</div>

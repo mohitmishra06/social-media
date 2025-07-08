@@ -1,0 +1,52 @@
+<div class="flex flex-col gap-4 bg-[var(--white)]">
+    <!-- User -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <img src="./images/user-4.jpg" alt="user" class="w-10 h-10 rounded-full">
+            <div class="font-medium">Pinky Choudhary</div>
+        </div>
+        <div class="flex items-center justify-center bg-[#f5f5f5] w-11 h-11 rounded-full">
+            <img src="./images/more.png" alt="more" class="w-5 h-5">
+        </div>
+    </div>
+    <!-- Desc -->
+    <div class="flex flex-col gap-4">
+        <div class="w-full min-h-70 relative">
+            <img src="https://images.pexels.com/photos/32464933/pexels-photo-32464933.jpeg" alt="post-image" class="object-cover rounded-md shadow-2xl">
+        </div>
+        <p class="text-base text-gray-400">Lorem ipsum dolor sit amet consectetur adipisicing elit. Libero, non pariatur! Beatae asperiores dolor labore similique. Asperiores esse quod placeat totam, vitae enim dolorum, deleniti ab nobis voluptatum suscipit cupiditate.</p>
+    </div>
+    <!-- Interaction -->
+    <div class="flex items-center justify-between text-sm my-4">
+        <div class="flex gap-8">
+            <div class="flex items-center gap-4 bg-[var(--text-lighter)] p-2 rounded-xl">
+                <fa-icon [icon]="icon.faThumbsUp" class="text-sm text-[var(--secondary)]"/>
+                <span class="text-gray-300">|</span>
+                <span class="text-gray-500">
+                    123
+                    <span class="hidden md:inline"> Likes</span>
+                </span>
+            </div>
+            <div class="flex items-center gap-4 bg-[var(--text-lighter)] p-2 rounded-xl">
+                <fa-icon [icon]="icon.faComment" class="text-sm text-[var(--secondary)]"/>
+                <span class="text-gray-300">|</span>
+                <span class="text-gray-500">
+                    123
+                    <span class="hidden md:inline"> Comments</span>
+                </span>
+            </div>
+        </div>
+        <div class="">
+            <div class="flex items-center gap-4 bg-slate-100 p-2 rounded-xl">
+                <fa-icon [icon]="icon.faShare" class="text-sm text-[var(--secondary)]"/>
+                <span class="text-gray-300">|</span>
+                <span class="text-gray-500">
+                    123
+                    <span class="hidden md:inline"> Shares</span>
+                </span>
+            </div>
+        </div>
+    </div>
+    <!-- Comments -->
+     <app-comments />
+</div>

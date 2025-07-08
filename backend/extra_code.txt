@@ -1,0 +1,29 @@
+class UserAuthentication(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields=['email']
+        # extra_kwargs={
+        #     'password':{'write_only':True}
+        # }
+
+    # Validating password and confirm password while registration
+    # def validate(self, attrs):
+    #     # Get the data coming from view page
+    #     password = attrs.get('password')
+    #     password2 = attrs.get('password2')
+    #     if password != password2:
+    #         raise serializers.ValidationError("password doesn't match with the confirm password")
+    #     return attrs
+
+    def validate(self, attrs):
+        # Get the data coming from view page
+        email = attrs.get('email')
+        if email=='':
+            raise serializers.ValidationError("Email field is required")
+        
+        return attrs
+
+    # If we use custome table so override the create method here
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)
+
