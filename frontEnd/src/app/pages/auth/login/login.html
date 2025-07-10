@@ -6,6 +6,16 @@
             LinkUp is the best way to reconnect with old friends and communities — reach out and surprise them. Meet up again to reminisce and enjoy the good old times.
         </span>
         <p class="text-lg font-semibold">Why are you waiting for? Join Us Now.</p>
+         
+        <!-- Buttons for signUp and forgot -->
+        <div class="flex gap-2 mt-2">
+            <div class="flex items-center justify-center h-8 w-full bg-[var(--secondary)] rounded-lg shadow-lg cursor-pointer" routerLink="/auth/sign-up">
+                <button class="outline-none text-[var(--white)] cursor-pointer">Sign Up</button>
+            </div>
+            <div class="flex items-center justify-center h-8 w-full bg-[var(--primary)] rounded-lg shadow-lg cursor-pointer" routerLink="/auth/forgot-password">
+                <button class="outline-none text-[var(--white)] cursor-pointer">Forgot?</button>
+            </div>
+        </div>
     </div>
     
     <!-- right -->
@@ -15,7 +25,7 @@
         </div>
         <div class="w-full sm:w-[32rem] md:w-full md:absolute top-[-1rem] right-5 bg-[var(--white)] rounded-lg shadow-xl overflow-hidden">
             <div class="p-8 flex flex-col gap-3">
-                <!-- header -->
+                <!-- Header -->
                 <div class="flex gap-2 items-center justify-center">
                     <div class="flex items-center justify-center w-9 h-9 rounded-full border border-[var(--black)]">
                         <img src="./images/single-logo.png" alt="single-logo" class="w-7">
@@ -23,12 +33,13 @@
                     <span class="text-2xl text-[var(--black)] font-bold">LinkUp</span>
                 </div>
                 
-                <!-- title -->
-                 <div class="flex justify-center">
-                     <p class="text-sm text-gray-500">Sign in to LinkUp</p>
-                 </div>
-                <!-- Form -->
-                <form #logForm="ngForm" (ngSubmit)="login(logForm)" novalidate class="flex flex-col text-gray-500 mt-3 gap-2">
+                <!-- Title -->
+                <div class="flex justify-center">
+                    <p class="text-sm text-gray-500">Sign in to LinkUp</p>
+                </div>
+
+               <!-- Form -->
+                <form #logForm="ngForm" novalidate class="flex flex-col text-gray-500 mt-3 gap-2">
                     <div class="relative">
                         <input type="text" name="username" placeholder="Username" required ngModel #usrnme="ngModel" class="w-full border border-gray-500 p-2 rounded-lg outline-none">
                         <div *ngIf="usrnme.invalid && usrnme.touched">
@@ -52,9 +63,9 @@
                             <fa-icon [icon]="icon.faCircleCheck" class="absolute top-2 right-1 text-[var(--secondary)]"/>
                         </span>
                     </div>
-                    <div class="flex flex-1 gap-2 mt-2">
-                        <div class="flex  flex-1 items-center justify-center h-8 btn-bg-gradient-success rounded-lg shadow-lg cursor-pointer">
-                            <button class="outline-none text-[var(--white)]">Sign In</button>
+                    <div class="flex  gap-2 mt-2">
+                        <div class="flex items-center justify-center h-8 w-full btn-bg-gradient-success rounded-lg shadow-lg cursor-pointer" (click)="login(logForm)">
+                            <button class="outline-none text-[var(--white)] cursor-pointer">Sign In</button>
                         </div>
                     </div>
                 </form>

@@ -5,18 +5,19 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { ApiCallingService } from '../../../services/api/api-calling.service';
 import { Register } from '../../../interface/auth.interface';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-register',
   standalone:true,
-  imports:[ReactiveFormsModule, CommonModule, FontAwesomeModule],
+  imports:[ReactiveFormsModule, CommonModule, FontAwesomeModule, RouterModule],
   templateUrl: './register.html',
   styleUrls: ['./register.css']
 })
 export class RegisterComponent {
 
   icon = {faCircleXmark, faCircleCheck}
-  constructor(private _apiCall:ApiCallingService){}
+  constructor(private _apiCall:ApiCallingService, private _router:Router){}
   
   // only email and number are allow
   emailOrNumberAllow(frm: AbstractControl) {
@@ -35,18 +36,22 @@ export class RegisterComponent {
     console.log("this.regForm.value.email");
 
     // Creating data for comparison.
-        let registerData:Register = {
-          email: this.regForm.value.email!,
+    let registerData:Register = {
+      email: this.regForm.value.email!,
+    }
+
+    // Call api for authorisation.
+    this._apiCall.postApi('auth/register/', registerData).subscribe({
+      // next() method will be executed only when there will be no error.
+      next :(response:any) => {
+        // On success.
+        if(response.success === false){
+          this._router.navigate(['/auth']);
+          return;
         }
-
-        // Call api for authorisation.
-        this._apiCall.postApi('auth/register/', registerData).subscribe({
-          // next() method will be executed only when there will be no error.
-          next :(response:any) => {
-            // On success.
-            console.log(response);
-          }
-        });
+        this._router.navigate(['/auth/otp-validator/'+response.data]);
+        return;
+      }
+    });
   }
-
 }

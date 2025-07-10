@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.views import APIView
 from django.core.mail import EmailMultiAlternatives
+from django.db import IntegrityError
 from django.utils import timezone
 import random
 import string
@@ -16,6 +17,10 @@ from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 # Developer models and serializer
 from user_auth.serializers import UserRegisterSerializer, UserPWDChangeSerializer
 from user_auth.models import User
+
+# create encrypt value for save the hacker
+from cryptography.fernet import Fernet
+from django.conf import settings
 
 # Create token for the user
 def get_tokens_for_user(user):
@@ -128,7 +133,12 @@ class UserAuthentication(APIView):
 
             # Send response accourding to status
             if response.status_code == 200:
-                return Response({"code":200, "status":True, "msg":"Registration complete. Please check your email for next steps", "data":serializer.data})
+                # get fernet_key from settings.py
+                fernet = Fernet(settings.FERNET_KEY)
+                # convert the email to encrypt value
+                encry_email = fernet.encrypt(str(serializer.data['email']).encode()).decode()
+
+                return Response({"code":200, "status":True, "msg":"Registration complete. Please check your email for next steps", "data":encry_email})
             else:
                 return Response({"code":400, "status":False, "msg":"Something went wrong", "error": ""})
 
@@ -137,9 +147,15 @@ class UserAuthentication(APIView):
     # Check for valid otp
     def get(self, request, format=None):
         try:
+            # get fernet_key from settings.py
+            fernet = Fernet(settings.FERNET_KEY)
+
+            # dcrypt the comming encrypted value
+            email = fernet.decrypt(request.data.get("email").encode()).decode()
+
             # Get verified user data using email and otp
             user = User.objects.get(
-                email=request.data.get("email"),
+                email=email,
                 otp_code=request.data.get("otp")
             )
             
@@ -156,8 +172,14 @@ class UserAuthentication(APIView):
     # Change password
     def put(self, request, format=None):
         try:
+            # get fernet_key from settings.py
+            fernet = Fernet(settings.FERNET_KEY)
+
+            # dcrypt the comming encrypted value
+            email = fernet.decrypt(request.data.get("email").encode()).decode()
+
             # Validate user exits or not
-            user = User.objects.get(email=request.data.get("email"))
+            user = User.objects.get(email=email)
 
             # Create data
             data = {
@@ -175,19 +197,56 @@ class UserAuthentication(APIView):
                 return Response({"code":200, "status":True, "msg":"Success! Your password was changed. Log in to continue.", "data":serializer.data})
             else:
                 return Response({"code":400, "status":False, "msg":"Something went wrong", "error":serializer.errors})
-        except Exception as e:
-            return Response({"code":500, "status":False, "msg":"Internal server error", "error": f"Email field may not be blank that's why {str(e)}"})
+        except IntegrityError:
+            return Response({"code":400, "status":False, "msg":"This username is used already.", "error":""})
+              
+# Get user by email
+def user_details(request):
+    # get fernet_key from settings.py
+    fernet = Fernet(settings.FERNET_KEY)
 
- # Genereate new otp
+    # dcrypt the comming encrypted value
+    email = fernet.decrypt(request.GET.get("email").encode()).decode()
 
+    try:
+        user = User.objects.get(email=email)
+        if not user:
+            return JsonResponse({"code":404, "status":False, "msg":"User doesn't exists.", "error": ''})
+        
+        return JsonResponse({"code":200, "status":True, "msg":"Change your username and password", "data":user.username})
+    
+    except Exception as e:
+        return JsonResponse({"code":404, "status":False, "msg":"The OTP you entered is incorrect", "error": e})
+
+# Live username check
+def check_username(request):
+    try:            
+        username = request.GET.get('username', '').strip().lower()
+        exists = User.objects.filter(username__iexact=username).exists()
+        if not exists:
+            return JsonResponse({"code":200, "status":True, "msg":{"msg":"Available", "textName":" text-green-600"}, "data":True})
+
+        return JsonResponse({"code":200, "status":True, "msg":{"msg":"Username already taken", "textName":" text-red-600"}, "data":True})
+    
+    except Exception as e:
+        return JsonResponse({"code":500, "status":False, "msg":"Internal server error", "error": f"Failed to send email: {str(e)}"})
+    
+
+# Genereate new otp
 def new_otp(request):
     # When direct api call set email value from the request.body
     # and when register function calls set email value using request.data
-    
     email = ''
     try:
-        data = json.loads(request.body)
-        email = data.get("email")
+        # data = json.loads(request.body)
+        # email = data.get("email")
+
+        # get fernet_key from settings.py
+        fernet = Fernet(settings.FERNET_KEY)
+
+        # dcrypt the comming encrypted value
+        email = fernet.decrypt(request.GET.get("email").encode()).decode()
+
     except:
         email = request.data.get("email")
 
@@ -212,8 +271,13 @@ def new_otp(request):
         user_msg = EmailMultiAlternatives(subject, msg, email_from, [to])
         user_msg.content_subtype = 'html'
         user_msg.send()
+                
+        # get fernet_key from settings.py
+        fernet = Fernet(settings.FERNET_KEY)
+        # convert the email to encrypt value
+        encry_email = fernet.encrypt(str(email).encode()).decode()
         
-        return JsonResponse({"code":200, "status":True, "msg":"Please check your email for next steps", "data":email})
+        return JsonResponse({"code":200, "status":True, "msg":"Please check your email for next steps", "data":encry_email})
     
     except Exception as e:
         return JsonResponse({"code":500, "status":False, "msg":"Internal server error", "error": f"Failed to send email: {str(e)}"})

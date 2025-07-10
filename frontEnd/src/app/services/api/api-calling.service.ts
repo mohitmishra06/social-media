@@ -11,18 +11,27 @@ export class ApiCallingService {
   constructor(private _httpClient:HttpClient) { }
   
   // Get api for fetch data.
-  getApi(apiRoute:any): Observable<any>{    
-    return this._httpClient.get(`${environment.BACKEND_BASEURL}${apiRoute}`, { withCredentials: true });
+  getApi(apiRoute:any, data:any=null): Observable<any>{    
+    return this._httpClient.get(`${environment.BACKEND_BASEURL}${apiRoute}`,{
+      params: data,
+      withCredentials: true
+    });
   }
 
   // Get api for pagination data fetch.
-  getPaginateApi(apiRoute:any): Observable<any>{  
-    return this._httpClient.get(`${apiRoute}`, { withCredentials: true });
+  getPaginateApi(apiRoute:any, data:any=null): Observable<any>{  
+    return this._httpClient.get(`${apiRoute}`,{
+      params: data,
+      withCredentials: true
+    });
   }
 
   // Get api for fetch data for particular id.
-  getApiById(apiRoute:any): Observable<any>{
-    return this._httpClient.get(`${environment.BACKEND_BASEURL}${apiRoute}`, { withCredentials: true });
+  getApiById(apiRoute:any, data:any=null): Observable<any>{
+    return this._httpClient.get(`${environment.BACKEND_BASEURL}${apiRoute}`,{
+      params: data,
+      withCredentials: true
+    });
   }
 
   // Post api for save data.

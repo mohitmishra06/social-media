@@ -1,0 +1,52 @@
+<div class="h-full px-4 sm:px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-32 flex flex-col md:flex-row items-center justify-center gap-16 overflow-x-hidden">
+    <!-- Left -->
+    <div class="flex flex-col gap-6 max-w-md text-[var(--white)]">
+        <p class="text-3xl font-bold">Connect with Awesome People</p>
+        <span class="text-base">
+            LinkUp is the best way to reconnect with old friends and communities — reach out and surprise them. Meet up again to reminisce and enjoy the good old times.
+        </span>
+        <p class="text-lg font-semibold">Why are you waiting for? Join Us Now.</p>
+    </div>
+    
+    <!-- right -->
+    <div class="relative">
+        <div class="hidden md:block bg-[#ffffff1a] h-[19rem] w-[30rem] rounded-lg shadow-lg relative">
+            <div class="absolute top-4 right-[-1rem] bg-[#ffffff1a] h-[19rem] w-[30rem] rounded-lg shadow-lg"></div>
+        </div>
+        <div class="w-full sm:w-[32rem] md:w-full md:absolute top-[-1rem] right-5 bg-[var(--white)] rounded-lg shadow-xl overflow-hidden">
+            <div class="p-8 flex flex-col gap-3">
+                <!-- header -->
+                <div class="flex gap-2 items-center justify-center">
+                    <div class="flex items-center justify-center w-9 h-9 rounded-full border border-[var(--black)]">
+                        <img src="./images/single-logo.png" alt="single-logo" class="w-7">
+                    </div>
+                    <span class="text-2xl text-[var(--black)] font-bold">LinkUp</span>
+                </div>
+                
+                <!-- title -->
+                 <div class="flex justify-center text-center">
+                     <p class="text-sm text-gray-500">Please enter the verification code we sent to your<br/> mohit&#64;gmail.com</p>
+                 </div>
+                <!-- Form -->
+                <form #otpValidatorForm="ngForm" novalidate class="flex flex-col text-gray-500 mt-3 gap-2">
+                    <div class="relative">
+                        <div class="flex gap-2">
+                            <input type="text" name="first" required maxlength="1" pattern="[0-9]*" ngModel #firstValue="ngModel" #otp1 (input)="onInput($event, otp2)" autofocus [ngClass]="['w-full text-center border p-2 rounded-lg outline-none no-arrows', (firstValue.invalid && firstValue.touched) ? 'border-red-500' : ' border-gray-300']">
+                            <input type="text" name="second" required maxlength="1" pattern="[0-9]*" ngModel #secondValue="ngModel" #otp2 (input)="onInput($event, otp3)" (keydown)="onBackspace($event, otp1)" [ngClass]="['w-full text-center border p-2 rounded-lg outline-none no-arrows', (secondValue.invalid && secondValue.touched) ? 'border-red-500' : ' border-gray-300']">
+                            <input type="text" name="third" required maxlength="1" pattern="[0-9]*" ngModel #thirdValue="ngModel" #otp3 (input)="onInput($event, otp4)" (keydown)="onBackspace($event, otp2)" [ngClass]="['w-full text-center border p-2 rounded-lg outline-none no-arrows', (thirdValue.invalid && thirdValue.touched) ? 'border-red-500' : ' border-gray-300']">
+                            <input type="text" name="fourth" required maxlength="1" pattern="[0-9]*" ngModel #fourthValue="ngModel" #otp4 (input)="onInput($event, otp5)" (keydown)="onBackspace($event, otp3)" [ngClass]="['w-full text-center border p-2 rounded-lg outline-none no-arrows', (fourthValue.invalid && fourthValue.touched) ? 'border-red-500' : ' border-gray-300']">
+                            <input type="text" name="fifth" required maxlength="1" pattern="[0-9]*" ngModel #fifthValue="ngModel" #otp5 (input)="onInput($event, otp6)" (keydown)="onBackspace($event, otp4)" [ngClass]="['w-full text-center border p-2 rounded-lg outline-none no-arrows', (fifthValue.invalid && fifthValue.touched) ? 'border-red-500' : ' border-gray-300']">
+                            <input type="text" name="six" required maxlength="1" pattern="[0-9]*" ngModel #sixValue="ngModel" #otp6 (input)="onInput($event, null)" (keydown)="onBackspace($event, otp5)" [ngClass]="['w-full text-center border p-2 rounded-lg outline-none no-arrows', (sixValue.invalid && sixValue.touched) ? 'border-red-500' : ' border-gray-300']">
+                        </div>
+                    </div>
+                    <div class="flex flex-1 gap-2 mt-2">
+                        <div *ngIf="otpValidatorForm.valid" class="flex flex-1 items-center justify-center h-8 btn-bg-gradient-success rounded-lg shadow-lg cursor-pointer" (click)="otpValidator(otpValidatorForm)">
+                            <button type="submit" class="outline-none text-[var(--white)] cursor-pointer">Sign In</button>
+                        </div>
+                    </div>
+                </form>
+                <p class="text-center "><a class="text-base text-[var(--btn-success)] font-semibold cursor-pointer" (click)="newOTP()">Send OTP Again</a></p>
+            </div>
+        </div>
+    </div>
+</div>
