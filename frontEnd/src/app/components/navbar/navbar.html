@@ -44,8 +44,19 @@
             <div class="hidden md:flex cursor-pointer">
                 <img src="./images/notifications.png" alt="" class="w-5 h-5" />
             </div>
-            <div class="cursor-pointer">
+            <div class="cursor-pointer group relative">
                 <img src="./images/noAvatar.png" alt="" class="w-5 h-5" />
+                <ul class="absolute top-10 right-0 z-5 flex flex-col gap-6 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-1000 ease-in-out w-[10rem] bg-white p-4 rounded-lg shadow-xl">
+                    <li class="flex items-center gap-4">
+                        <fa-icon [icon]="icon.faUser" class="text-sm text-gray-400 cursor-pointer"/>
+                        <span class="text-sm text-gray-400 cursor-pointer">Profile</span>
+                    </li>
+                    <hr class="border-t-1 border-gray-100" />
+                    <li class="flex items-center gap-4" (click)="logout()">
+                        <fa-icon [icon]="icon.faRightFromBracket" class="text-sm text-gray-400 cursor-pointer"/>
+                        <span class="text-sm text-gray-400 cursor-pointer">Logout</span>
+                    </li>
+                </ul>
             </div>
          </div>
         <app-mobile-menu></app-mobile-menu>

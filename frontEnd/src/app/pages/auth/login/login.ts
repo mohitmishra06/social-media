@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, FormsModule, NgForm, Validators } from '@angular/forms'
+import { FormsModule, NgForm } from '@angular/forms'
 import { faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
 import { CommonModule } from '@angular/common';
 import { Login } from '../../../interface/auth.interface';
 import { ApiCallingService } from '../../../services/api/api-calling.service';
 import { Router, RouterModule } from '@angular/router';
+import { Toastr } from '../../../services/toastr/toastr';
 
 @Component({
   selector: 'app-login',
@@ -14,9 +15,11 @@ import { Router, RouterModule } from '@angular/router';
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
-export class LoginComponent {
+export class LoginComponent{
   icon = { faCircleXmark, faCircleCheck }
-  constructor(private _apiCall:ApiCallingService, private _router:Router){}
+  userData:any;
+
+  constructor(private _apiCall:ApiCallingService, private _router:Router, private _tostr:Toastr){}
 
   login(logForm:NgForm){
     // Creating data for comparison.
@@ -28,26 +31,18 @@ export class LoginComponent {
     // Call api for authorisation.
     this._apiCall.postApi('auth/login/', loginData).subscribe({
       // next() method will be executed only when there will be no error.
-      next :(response:any) => {
+      next :(response:any) => {        
         // On success.
-        if(response.success === false){
-          this._router.navigate(['/auth']);
+        if(response.status === false){
+            this._tostr.toasterStatus(['text-[var(--dark-pink)]', response.msg]);
+            this._router.navigate(['/auth']);
+            return;
+          }
+          this._tostr.toasterStatus(['text-gray-600', response.msg]);
+          this.userData = response.data
+          this._router.navigate(['/']);
           return;
         }
-        this._router.navigate(['/']);
-        return;
-      }
-    });
-  }
-
-  // Logout
-  logout(){
-    // Call api for authorisation.
-    this._apiCall.getApi('auth/logout/').subscribe({
-      // next() method will be executed only when there will be no error.
-      next :(response:any) => {
-          this._router.navigate(['/auth']);
-      }
     });
   }
 }

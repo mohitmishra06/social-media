@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { Login, OTP } from '../../../interface/auth.interface';
 import { ApiCallingService } from '../../../services/api/api-calling.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Toastr } from '../../../services/toastr/toastr';
 
 @Component({
   selector: 'app-otp-validator',
@@ -20,13 +21,18 @@ export class OtpValidatorComponent implements OnInit{
   otp:string = ''
   email:string = '';
 
-  constructor(private _apiCall:ApiCallingService, private _router:Router, private _route: ActivatedRoute){}
+  constructor(
+    private _apiCall:ApiCallingService,
+    private _router:Router,
+    private _route: ActivatedRoute,
+    private _tostr:Toastr
+  ){}
 
   // Get params
   ngOnInit() {
     this._route.paramMap.subscribe(params => {
       this.email = params.get('email')!;
-    });
+    });    
   }
 
   // This function moves the focus after fill the input with number
@@ -58,28 +64,35 @@ export class OtpValidatorComponent implements OnInit{
       email:this.email
     }
 
-    // Call api for authorisation.
-    this._apiCall.postApi('auth/otp-validate/', otpData).subscribe({
+    // Call api for otp verification.
+    this._apiCall.getApi('auth/otp-validate/', otpData).subscribe({
       // next() method will be executed only when there will be no error.
       next :(response:any) => {
         // On success.
-        if(response.success === false){
-          this._router.navigate(['/auth']);
+        if(response.status === false){
+            this._tostr.toasterStatus(['text-[var(--dark-pink)]', response.msg]);
+            return;
+          }
+          this._tostr.toasterStatus(['text-gray-600', response.msg]);
+          this._router.navigate(['/auth/change-password/' + this.email]);
           return;
         }
-        
-        this._router.navigate(['/auth/change-password/' + this.email]);
-        return;
-      }
     });
 
   }
 
-  newOTP(){    
-    // Call api for authorisation.
+  // Get new otp
+  newOTP(){
+    // Call api for new otp.
     this._apiCall.getApiById('auth/new-otp/', {'email':this.email}).subscribe({
       // next() method will be executed only when there will be no error.
       next :(response:any) => {
+        // On success
+        if(response.status === false){
+          this._tostr.toasterStatus(['text-[var(--btn-danger)]', response.msg]);
+          return;
+        }        
+        this._tostr.toasterStatus(['text-gray-600', response.msg]);
         return;
       }
     });

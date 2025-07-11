@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, FormsModule, NgForm, Validators } from '@angular/forms'
+import { FormsModule, NgForm } from '@angular/forms'
 import { faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
 import { CommonModule } from '@angular/common';
-import { Login } from '../../../interface/auth.interface';
 import { ApiCallingService } from '../../../services/api/api-calling.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Toastr } from '../../../services/toastr/toastr';
+import { Change } from '../../../interface/auth.interface';
 
 @Component({
   selector: 'app-change-password',
@@ -19,7 +20,7 @@ export class ChangePasswordComponent implements OnInit {
   username:string = '';
   errorMessage:any;
 
-  constructor(private _apiCall:ApiCallingService, private _router:Router, private _route: ActivatedRoute){}
+  constructor(private _apiCall:ApiCallingService, private _router:Router, private _route: ActivatedRoute, private _tostr:Toastr){}
 
   // Get params
   ngOnInit() {
@@ -27,7 +28,7 @@ export class ChangePasswordComponent implements OnInit {
       this.email = params.get('id')!;
     });
 
-    // Call api for authorisation.
+    // Call api for user details.
     this._apiCall.getApiById('auth/user-details/', {"email":this.email}).subscribe({
       // next() method will be executed only when there will be no error.
       next :(response:any) => {
@@ -40,19 +41,13 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   // Check user name
-  checkUsername(event:any){
-    console.log(event.target.value);
-    
-    // Call api for authorisation.
+  checkUsername(event:any){    
+    // Call api for user exist or not.
     this._apiCall.getApiById('auth/check-username/', {"username":event.target.value}).subscribe({
       // next() method will be executed only when there will be no error.
       next :(response:any) => {
         if(response.status === true){
-          console.log(response.msg);
-          
           this.errorMessage = response.msg;
-          console.log(this.errorMessage.msg);
-          
           return;
         }
       }
@@ -61,18 +56,24 @@ export class ChangePasswordComponent implements OnInit {
 
   changePassword(changeForm:NgForm){
     // Creating data for comparison.
-    let changeData:Login = {
+    let changeData:Change = {
+      email: this.email,
       username: changeForm.value.username!,
       password: changeForm.value.password!
     }
 
     // Call api for authorisation.
-    this._apiCall.postApi('auth/change-password/', changeData).subscribe({
+    this._apiCall.putApi('auth/change-password/', changeData).subscribe({
       // next() method will be executed only when there will be no error.
       next :(response:any) => {
         // On success.
-        this._router.navigate(['/auth']);
-        return;
+        if(response.status === false){
+            this._tostr.toasterStatus(['text-red', response.msg]);
+            return;
+          }
+          this._tostr.toasterStatus(['text-gray-600', response.msg]);
+          this._router.navigate(['/auth']);
+          return;
       }
     });
   }

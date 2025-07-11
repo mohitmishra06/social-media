@@ -43,9 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # App settings
+    # User app settings
     'user_auth',
-    'posts',
+    'user_posts',
+    'user_comments',
+    'user_likes',
+    'user_followers',
+    'user_story',
 
     # Authorization settings
     'corsheaders',
@@ -196,3 +200,7 @@ EMAIL_HOST_USER=config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD=config('EMAIL_HOST_PWD')
 
 EMAIL_USE_TLS=config('EMAIL_USE_TLS')
+
+# Settings for the image upload
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"

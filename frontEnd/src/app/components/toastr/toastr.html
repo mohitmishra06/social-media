@@ -1,0 +1,5 @@
+<div [class]="toasterValue ? 'block' : 'hidden'">
+    <div class="absolute top-2 right-0 bg-[var(--white)] rounded-sm p-6 w-max shadow-xl text-sm font-semibold {{ toasterValue ? toasterValue[0] : '' }}">
+        {{ toasterValue? toasterValue[1] : '' }}
+    </div>
+</div>

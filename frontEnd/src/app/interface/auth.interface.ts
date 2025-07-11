@@ -3,6 +3,12 @@ export interface Login{
     password:string,
 }
 
+export interface Change{
+    email:string,
+    username:any,
+    password:string,
+}
+
 export interface Register{
     email:string
 }

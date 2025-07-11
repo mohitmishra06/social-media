@@ -6,7 +6,7 @@ export const layout_routes: Routes = [
     component: LayoutComponent,
     children:[
       {
-        path:'dashboard',
+        path:'',
         // loadChildren: () => import('../dashboard/dashboard.routes').then(m => m.dashboard_routes)
         loadComponent:() => import('../../pages/dashboard/dashboard').then(m => m.Dashboard)
       },

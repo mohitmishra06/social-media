@@ -27,3 +27,45 @@ class UserAuthentication(serializers.ModelSerializer):
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
 
+
+from PIL import Image, ImageDraw, ImageFont
+import random
+
+def generate_avatar(initials="AB", size=256, font_size=100):
+    # Random background color (like Gmail)
+    background_colors = [
+        "#F44336", "#E91E63", "#9C27B0", "#3F51B5", "#2196F3",
+        "#009688", "#4CAF50", "#FF9800", "#795548"
+    ]
+    
+    bg_color = random.choice(background_colors)
+    
+    # Create square image
+    img = Image.new('RGB', (size, size), bg_color)
+    draw = ImageDraw.Draw(img)
+    
+    # Draw circle mask
+    mask = Image.new('L', (size, size), 0)
+    ImageDraw.Draw(mask).ellipse((0, 0, size, size), fill=255)
+    
+    # Load a font
+    try:
+        font = ImageFont.truetype("arial.ttf", font_size)
+    except IOError:
+        font = ImageFont.load_default()
+
+    # Get text size
+    text_width, text_height = draw.textsize(initials, font=font)
+    
+    # Center text
+    position = ((size - text_width) / 2, (size - text_height) / 2 - 10)
+    draw.text(position, initials, fill='white', font=font)
+
+    # Apply circle mask
+    final_img = Image.new("RGB", (size, size))
+    final_img.paste(img, mask=mask)
+
+    final_img.show()
+    final_img.save("gmail_style_avatar.png")
+
+generate_avatar("JS")  # You can change initials here

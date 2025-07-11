@@ -5,18 +5,19 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { ApiCallingService } from '../../../services/api/api-calling.service';
 import { Register } from '../../../interface/auth.interface';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { Toastr } from '../../../services/toastr/toastr';
 
 @Component({
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.html',
   styleUrls: ['./forgot-password.css'],
-  imports: [ReactiveFormsModule, CommonModule, FontAwesomeModule]
+  imports: [ReactiveFormsModule, CommonModule, FontAwesomeModule, RouterModule]
 })
 export class ForgotPasswordComponent {
 
   icon = {faCircleXmark, faCircleCheck}
-  constructor(private _apiCall:ApiCallingService, private _router:Router){}
+  constructor(private _apiCall:ApiCallingService, private _router:Router, private _tostr:Toastr){}
   
   // only email and number are allow
   emailOrNumberAllow(frm: AbstractControl) {
@@ -32,26 +33,24 @@ export class ForgotPasswordComponent {
   }, {validators: this.emailOrNumberAllow})
 
   forgotPassword(){
-    console.log("this.regForm.value.email");
-
     // Creating data for comparison.
     let forgotData:Register = {
       email: this.fogForm.value.email!,
     }
 
     // Call api for authorisation.
-    this._apiCall.postApi('auth/new-otp/', forgotData).subscribe({
+    this._apiCall.getApi('auth/new-otp/', forgotData).subscribe({
       // next() method will be executed only when there will be no error.
       next :(response:any) => {
         // On success.
-        if(response.success === false){
-          this._router.navigate(['/auth']);
+        if(response.status === false){
+            this._tostr.toasterStatus(['text-red', response.msg]);
+            return;
+          }
+          this._tostr.toasterStatus(['text-gray-600', response.msg]);
+          this._router.navigate(['/auth/otp-validator/' + response.data]);
           return;
         }
-        
-        this._router.navigate(['/auth/otp-validator']);
-        return;
-      }
-    });
+      });
   }
 }
