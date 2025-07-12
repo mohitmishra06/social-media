@@ -21,3 +21,4 @@ class UserLikeModels(models.Model):
             )
     created_at = models.DateTimeField(auto_now_add=True)    # auto_now_add fill time only one time, when save data in table first time, this naver change.
     updated_at = models.DateTimeField(auto_now=True)        # auto_now update the time on every save/update value
+    deleted_at = models.BooleanField(default=False)

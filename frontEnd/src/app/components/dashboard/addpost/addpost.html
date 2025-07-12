@@ -11,15 +11,22 @@
      <!-- Post -->
       <div class="mt-4">
         <!-- Text-input -->
-         <div class="flex gap-6 border-[1px] border-gray-200 p-4 rounded-lg">
-            <div class="flex flex-col gap-2">
-                <img src="./images/user-1.jpg" alt="noAvatar" class="w-6 h-6 rounded-full">
-                <img src="./images/emoji.png" alt="emoji" class="w-6 h-6 rounded-full">
+        <form #postForm="ngForm" class="flex gap-6 border-[1px] border-gray-200 p-4 rounded-lg">
+            <div class="w-full">
+                <textarea name="post" id="post" required ngModel #post="ngModel" placeholder="What's on your mind?" class="w-full bg-transparent outline-none text-gray-400 text-sm" rows="4"></textarea>
+                <small class="text-[var(--btn-danger)]" *ngIf="errorMessage">{{ errorMessage }}.</small>
+                <div *ngIf="post.invalid && post.touched">
+                    <small class="text-bg-gradient-left-danger" *ngIf="post.errors?.['required']">If you clicked the button, please create a post.</small>
+                </div>
             </div>
-            <textarea name="" id="" placeholder="What's on your mind?" class="w-full bg-transparent outline-none text-gray-400 text-sm" rows="4"></textarea>
-         </div>
-         <!-- Post options -->
-         <div class="flex items-center gap-4 mt-4 text-gray-400">
+            <div class="flex flex-col items-center gap-2">
+                <img src="./images/user-1.jpg" alt="noAvatar" class="w-6 h-6 rounded-full">
+                <img src="./images/emoji.png" alt="emoji" class="w-6 h-6 rounded-full cursor-pointer">
+                <button type="submit" (click)="creatPost(postForm)" *ngIf="post.valid"><img src="./images/send_btn.png" alt="emoji" class="w-7 h-7 rounded-full cursor-pointer"/></button>
+            </div>
+        </form>
+        <!-- Post options -->
+        <div class="flex items-center gap-4 mt-4 text-gray-400">
             <div class="flex items-center gap-2 cursor-pointer">
                 <fa-icon [icon]="icon.faVideoCamera" class="text-xl text-[var(--dark-pink)]"/>
                 <span class="hidden sm:block font-medium text-sm">Live Video</span>
@@ -32,6 +39,6 @@
                 <fa-icon [icon]="icon.faCamera" class="text-xl text-[var(--yellow)]"/>
                 <span class="hidden sm:block font-medium text-sm">Feeling/Activity</span>
             </div>
-         </div>
-      </div>
+        </div>
+    </div>
 </div>

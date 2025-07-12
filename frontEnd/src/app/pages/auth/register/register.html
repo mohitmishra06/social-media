@@ -31,6 +31,7 @@
                 <form [formGroup]="regForm" novalidate class="flex flex-col text-gray-500 mt-3 gap-2">
                     <div class="relative">
                         <input type="text" name="email" placeholder="email" formControlName="email" class="w-full p-2 outline-none border border-gray-500 rounded-lg">
+                        <small class="text-[var(--btn-danger)]" *ngIf="errorMessage">{{ errorMessage }}.</small>
                         <span *ngIf="(regForm.controls.email.errors && regForm.controls.email.touched) || (regForm.errors && regForm.controls.email.touched)" class=" tooltip text-bg-gradient-left-danger">
                             <fa-icon [icon]="icon.faCircleXmark" class="absolute top-2 right-1 text-[var(--dark-pink)]" />
                             <span class="tooltiptext" *ngIf="regForm.controls.email.errors?.['required']">This fields is required.</span>

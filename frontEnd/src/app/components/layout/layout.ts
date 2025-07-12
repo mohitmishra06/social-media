@@ -21,9 +21,7 @@ export class LayoutComponent implements OnInit {
       next :(response:any) => {        
         // On success.
         if(response.status === true){
-            console.log(response);
-            
-            this._userData.setUserData(response.data)
+            this._userData.setUserData(response.data)            
             return;
           }
           return;

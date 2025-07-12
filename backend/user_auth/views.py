@@ -8,11 +8,13 @@ from django.db import IntegrityError
 from django.utils import timezone
 import random
 import string
-import json
-import os
 
 # This library us for default image create
 from PIL import Image, ImageDraw, ImageFont
+from django.core.files.base import ContentFile
+import base64
+from io import BytesIO
+
 
 # Token library
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
@@ -21,6 +23,7 @@ from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 # Developer models and serializer
 from user_auth.serializers import UserRegisterSerializer, UserPWDChangeSerializer
 from user_auth.models import User
+from user_followers.models import UserFollowerModel
 
 # Create encrypt value for save the hacker
 from cryptography.fernet import Fernet, InvalidToken
@@ -39,38 +42,56 @@ def get_tokens_for_user(user):
     }
 
 # Create user default image
-def generate_avatar(initials="AB", size=256, font_size=100, output_dir="avatars"):
-    os.makedirs(output_dir, exist_ok=True)
+def generate_avatar(initials="PM", size=256, font_size=150, output_dir="user_avatars"):
+    # If folder is not exist so its create a new folder
+    # os.makedirs(output_dir, exist_ok=True)
 
-    background_colors = [
-        "#F44336", "#E91E63", "#9C27B0", "#3F51B5", "#2196F3",
-        "#009688", "#4CAF50", "#FF9800", "#795548"
-    ]
+    # Creates a random color for img background
+    background_colors = "#" + str(random.randint(100000, 999999))
 
-    bg_color = random.choice(background_colors)
-
-    img = Image.new('RGB', (size, size), bg_color)
+    # This creates a object for the new image with size and background color
+    img = Image.new('RGB', (size, size), background_colors)
+    # This drow the img accourding to new image object
     draw = ImageDraw.Draw(img)
 
+    # This creates a object for the new image mask
     mask = Image.new('L', (size, size), 0)
+    # This drow the img accourding to new image mask object
     ImageDraw.Draw(mask).ellipse((0, 0, size, size), fill=255)
 
     try:
+        # If font fammily is available so use it
         font = ImageFont.truetype("arial.ttf", font_size)
     except IOError:
+        # Otherwise use default font familly
         font = ImageFont.load_default()
 
-    text_width, text_height = draw.textsize(initials, font=font)
+    # This line create a box for the our character
+    bbox = draw.textbbox((0, 0), initials, font=font)
+    # This define height and width accourding to cordinate of "x"
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+
+    # Now this line create possition for align center horizontal and vertical of the image
     position = ((size - text_width) / 2, (size - text_height) / 2 - 10)
+
+    # This line creates text with color white, font family and position 
     draw.text(position, initials, fill='white', font=font)
 
+    # This line creats a object which is create a final image
     final_img = Image.new("RGB", (size, size))
-    final_img.paste(img, mask=mask)
-
-    file_path = os.path.join(output_dir, f"{initials}_avatar.png")
-    final_img.save(file_path)
-
-    return file_path
+    # Here is creating image with the character and mask
+    final_img.paste(img, mask=mask)    
+    
+    # Create a buffer object for store image
+    buffer = BytesIO()
+    # In buffer object store image as temp
+    final_img.save(buffer, format="PNG")
+    # Get image reference from the buffer object
+    image_png = buffer.getvalue()
+    
+    # First convert the file into Files object and return a response
+    return ContentFile(image_png, name=f"{initials}_avatar.png")
 
 # Login
 class UserLogin(APIView):
@@ -80,7 +101,7 @@ class UserLogin(APIView):
             # Validate user exits or not.
             user = User.objects.get(username=request.data.get("username"))
         except User.DoesNotExist:
-                return Response({"code":404, "status":False, "msg":"No account was found with this username.", "error": ""})
+                return Response({"code":404, "status":False, "msg":"No account was found with this username.", "errors": ""})
 
         try:
             
@@ -88,7 +109,7 @@ class UserLogin(APIView):
             password = check_password(request.data.get("password"), user.password)
 
             if not password:
-                return Response({"code":400, "status":False, "msg":"Passwords do not match.", "error": ""})
+                return Response({"code":400, "status":False, "msg":"Passwords do not match.", "errors": ""})
             
             # Call jwt function for create token
             token = get_tokens_for_user(user)
@@ -116,26 +137,30 @@ class UserLogin(APIView):
         
         except Exception as e:
             print(e)
-            return Response({"code":500, "status":False, "msg":"Internal server error", "error": f"Username field may not be blank that's why {str(e)}"})
+            return Response({"code":500, "status":False, "msg":"Internal server error", "errors": f"Username field may not be blank that's why {str(e)}"})
 
     # This data use for whole program to work.
     def get(self, request):
         try:
             token = RefreshToken(request.COOKIES.get("refresh_token"))
             user = User.objects.get(id=token["user_id"])
-
+            print(user.img.url)
             if user:
+                followers = UserFollowerModel.objects.filter(follower_id = token["user_id"]).count()
+                print(followers)
                 # Make data for user
                 user = {
-                    "userId":user.id,
-                    "userName":user.username,
-                    "userImg":user.img
+                    "userId": user.id,
+                    "userName": user.username,
+                    "userImg": request.build_absolute_uri(user.img.url) if user.img else None,
+                    "userCover": request.build_absolute_uri(user.banner.url) if user.banner else None,
+                    "followers": followers if followers else None
                 }
 
                 return Response({"code":200, "status":True, "msg":"Data found.", "data":user})
 
         except User.DoesNotExist as e:
-            return Response({"code":404, "status":False, "msg":"No data was found with this username id.", "error": ""})
+            return Response({"code":404, "status":False, "msg":"No data was found with this username id.", "errors": ""})
 
     # Logout  
     def put(self, request):
@@ -161,45 +186,53 @@ class UserLogin(APIView):
                 "code": 500,
                 "status": False,
                 "msg": "Internal server error",
-                "error": f"Your session was not deleted: {str(e)}"
+                "errors": f"Your session was not deleted: {str(e)}"
             })
 
 # Authenticatioin class start
 class UserAuthentication(APIView):
     # Register
-    def post(self, request, format=None):        
-        # Generate a rundum string for username
-        username = '' . join(random.sample((string.ascii_uppercase), 8))
+    def post(self, request, format=None):
+        try:
+            # Generate a rundum string for username
+            username = '' . join(random.sample((string.ascii_uppercase), 8))
 
-        # Get data from the api
-        data = {
-            'email': request.data.get('email'),
-            'username': username
-        }
+            # Get first charactor from the email string
+            initial = request.data.get("email")[0]
 
-        # This line sent data to serialization.
-        serializer = UserRegisterSerializer(data=data)
+            # Call the function with required parameter
+            img_path = generate_avatar(initial.upper())
 
-        # Validate data for empty or wrong value
-        if serializer.is_valid():
-            # Create a new user
-            serializer.save()
+            # Get data from the api
+            data = {
+                "email": request.data.get("email"),
+                "username": username,
+                "img": img_path
+            }
 
-            # Call for the new otp function for save otp in table
-            response = new_otp(serializer)
+            # This line sent data to serialization.
+            serializer = UserRegisterSerializer(data=data)
 
-            # Send response accourding to status
-            if response.status_code == 200:
-                # get fernet_key from settings.py
-                fernet = Fernet(settings.FERNET_KEY)
-                # convert the email to encrypt value
-                encry_email = fernet.encrypt(str(serializer.data['email']).encode()).decode()
+            # Validate data for empty or wrong value
+            if serializer.is_valid():
+                # Create a new user
+                serializer.save()
+
+                # # Call for the new otp function for save otp in table
+                response = new_otp(serializer)
+
+                # Send response accourding to status
+                if response.status_code == 200:
+                    # get fernet_key from settings.py
+                    fernet = Fernet(settings.FERNET_KEY)
+                    # convert the email to encrypt value
+                    encry_email = fernet.encrypt(str(serializer.data['email']).encode()).decode()
 
                 return Response({"code":200, "status":True, "msg":"Registration complete. Please check your email for next steps", "data":encry_email})
-            else:
-                return Response({"code":400, "status":False, "msg":"Something went wrong", "error": ""})
-
-        return Response({"code":400, "status":False, "msg":"Something went wrong", "error":serializer.errors})
+            
+            return Response({"code":400, "status":False, "msg":"Something went wrong", "errors":serializer.errors})
+        except Exception as e:
+            return Response({"code":500, "status":False, "msg":"Something went wrong", "errors":""})
  
     # Check for valid otp
     def get(self, request, format=None):
@@ -224,7 +257,7 @@ class UserAuthentication(APIView):
 
             return Response({"code":200, "status":True, "msg":"Change your username and password", "data":serializer.data})
         except User.DoesNotExist:
-            return Response({"code":404, "status":False, "msg":"The OTP you entered is incorrect", "error": ''})
+            return Response({"code":404, "status":False, "msg":"The OTP you entered is incorrect", "errors": ''})
 
     # Change password
     def put(self, request, format=None):
@@ -253,9 +286,9 @@ class UserAuthentication(APIView):
 
                 return Response({"code":200, "status":True, "msg":"Success! Your password was changed. Log in to continue.", "data":serializer.data})
             else:
-                return Response({"code":400, "status":False, "msg":"Something went wrong", "error":serializer.errors})
+                return Response({"code":400, "status":False, "msg":"Something went wrong", "errors":serializer.errors})
         except IntegrityError:
-            return Response({"code":400, "status":False, "msg":"This username is used already.", "error":""})
+            return Response({"code":400, "status":False, "msg":"This username is used already.", "errors":""})
               
 # Get user by email
 def user_details(request):
@@ -268,12 +301,12 @@ def user_details(request):
     try:
         user = User.objects.get(email=email)
         if not user:
-            return JsonResponse({"code":404, "status":False, "msg":"User doesn't exists.", "error": ''})
+            return JsonResponse({"code":404, "status":False, "msg":"User doesn't exists.", "errors": ''})
         
         return JsonResponse({"code":200, "status":True, "msg":"Change your username and password", "data":user.username})
     
     except Exception as e:
-        return JsonResponse({"code":404, "status":False, "msg":"The OTP you entered is incorrect", "error": e})
+        return JsonResponse({"code":404, "status":False, "msg":"The OTP you entered is incorrect", "errors": e})
 
 # Live username check
 def check_username(request):
@@ -289,7 +322,7 @@ def check_username(request):
         return JsonResponse({"code":200, "status":True, "msg":{"msg":"Username already taken", "textName":" text-red-600"}, "data":True})
     
     except Exception as e:
-        return JsonResponse({"code":500, "status":False, "msg":"Internal server error", "error": f"Failed to send email: {str(e)}"})
+        return JsonResponse({"code":500, "status":False, "msg":"Internal server error", "errors": f"Failed to send email: {str(e)}"})
     
 # Genereate new otp
 def new_otp(request):
@@ -344,7 +377,7 @@ def new_otp(request):
         return JsonResponse({"code":200, "status":True, "msg":"Your OTP has been sent to your email! Please check it.", "data":encry_email})
     
     except Exception as e:
-        return JsonResponse({"code":500, "status":False, "msg":"Internal server error", "error": f"Failed to send email: {str(e)}"})
+        return JsonResponse({"code":500, "status":False, "msg":"Internal server error", "errors": f"Failed to send email: {str(e)}"})
 
 # This is use for check user validation from angular auth guard   
 class UserTokenValidation(APIView):
@@ -379,7 +412,7 @@ class UserTokenValidation(APIView):
                     "code": 401,
                     "status": True,
                     "msg": "Access token expire.",
-                    "error": str(e),
+                    "errors": str(e),
                     "data": False
                 })
 

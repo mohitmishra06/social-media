@@ -16,6 +16,7 @@ import { Toastr } from '../../../services/toastr/toastr';
   styleUrls: ['./register.css']
 })
 export class RegisterComponent {
+  errorMessage:string = ''; 
 
   icon = {faCircleXmark, faCircleCheck}
   constructor(private _apiCall:ApiCallingService, private _router:Router, private _tostr:Toastr){}
@@ -34,8 +35,6 @@ export class RegisterComponent {
   }, {validators: this.emailOrNumberAllow})
 
   register(){
-    console.log("this.regForm.value.email");
-
     // Creating data for comparison.
     let registerData:Register = {
       email: this.regForm.value.email!,
@@ -47,6 +46,8 @@ export class RegisterComponent {
       next :(response:any) => {
         // On success.
         if(response.status === false){
+          console.log(response.errors.email[0]);
+            this.errorMessage = response.errors.email[0]
             this._tostr.toasterStatus(['text-[var(--dark-pink)]', response.msg]);
             return;
           }
