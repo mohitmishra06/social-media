@@ -4,15 +4,16 @@ import { ApiCallingService } from '../../../../services/api/api-calling.service'
 import { ActivatedRoute } from '@angular/router';
 import { Toastr } from '../../../../services/toastr/toastr';
 import { UserDataStore } from '../../../../services/userData/user-data-store';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-friend-requests',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './friend-requests.html',
   styleUrl: './friend-requests.css'
 })
 export class FriendRequests {
-  allRequests:any;
+  allFriendRequests:any;
   url = environment.IMG_BASEURL;
   userId:any;
 
@@ -27,17 +28,15 @@ export class FriendRequests {
     this.userId = this._route.snapshot.paramMap.get('id')
 
     // Get friends request function calling
-    this.getAllRequests(this.userId);
+    this.getAllFriendRequests(this.userId);
   }
 
   // Get all friends requests
-  getAllRequests(id:string){
+  getAllFriendRequests(id:string){
     this._apiCall.getApi("users/friend-requests/", {"id":id}).subscribe({
       next: (response: any) => {
         if (response.status === true) {        
-          this.allRequests = response.data;
-          console.log(this.allRequests);
-          
+          this.allFriendRequests = response.data;          
           // Maybe redirect or show an alert
         } else {
           this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.error])

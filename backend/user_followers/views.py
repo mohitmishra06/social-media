@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import JsonResponse
 from user_followers.models import UserFollowerModel, UserFollowerRequestModel, UserBlockModel
-from user_followers.serializers import FollowersSerializers, FollowerRequestSerializers, BlockSerializers
+from user_followers.serializers import FollowerRequestSerializers, FriendRequestWithUserDetailsSerialization, BlockSerializers
 from linkup.general_function import GeneralFunction
 
 # Import library for token
@@ -170,13 +170,13 @@ def friend_request(request):
         try:
             # Get current user friend request
             friends_request = UserFollowerRequestModel.objects.filter(receiver_id=current_user).select_related("sender")
-
+            
             # If no records found to related to current user
             if not friends_request:
                 return JsonResponse({"code":404, "status":False, "msg":"No user found.", "errors":""})
             
             # serialize the data
-            friends_request_serializer = FollowerRequestSerializers(friends_request, many=True)
+            friends_request_serializer = FriendRequestWithUserDetailsSerialization(friends_request, many=True)
 
             return JsonResponse({"code":200, "status":True, "msg":"All records found related to current user.", "data":friends_request_serializer.data})
 
