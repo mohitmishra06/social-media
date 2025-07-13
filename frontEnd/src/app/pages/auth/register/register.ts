@@ -46,7 +46,6 @@ export class RegisterComponent {
       next :(response:any) => {
         // On success.
         if(response.status === false){
-          console.log(response.errors.email[0]);
             this.errorMessage = response.errors.email[0]
             this._tostr.toasterStatus(['text-[var(--dark-pink)]', response.msg]);
             return;

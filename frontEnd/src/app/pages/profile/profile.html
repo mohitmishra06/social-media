@@ -3,39 +3,40 @@
     <div class="hidden md:block bg-white p-4 shadow-xl rounded-lg mt-6">
         <!-- Banner -->
          <div class="">
-            <img src="https://images.pexels.com/photos/9436715/pexels-photo-9436715.jpeg" alt="Banner" class="object-cover rounded-md shadow-xl h-[290px] w-full"/>
+            <!-- <img src="https://images.pexels.com/photos/9436715/pexels-photo-9436715.jpeg" alt="Banner" class="object-cover rounded-md shadow-xl h-[290px] w-full"/> -->
+            <img src="{{ url + userData?.banner }}" alt="Banner" class="object-cover rounded-md shadow-xl h-[290px] w-full"/>
          </div>
         <!-- User -->
          <div class="">
             <div class="flex items-center relative">
                 <figure class="absolute top-[-20px] left-3 z-2 ring-4 ring-white shadow-2xl rounded-full">
-                    <img src="./images/user.jpg" alt="user" class="rounded-full h-22 w-22 object-cover"/>
+                    <img src="{{ url + userData?.img }}" alt="user" class="rounded-full h-22 w-22 object-cover"/>
                 </figure>
                 <div class="flex flex-1 items-center justify-between w-full pl-32 my-4">
                     <div class="flex flex-1 flex-col">
-                        <span class="text-lg font-bold text-[var(--black)]">Mohit Mishra</span>
-                        <span class="text-sm text-gray-400">mohitmishra.falna&#64;gmail.com</span>
+                        <span class="text-lg font-bold text-[var(--black)]">{{ userData?.username }}</span>
+                        <span class="text-sm text-gray-400">{{ userData?.email }}</span>
                     </div>
                     <div class="hidden sm:flex flex flex-1 justify-evenly items-center gap-4">
                         <div class="flex flex-col items-center gap-1">
                             <span class="text-gray-500 text-sm font-medium">
-                                123
+                                {{ userData?.posts }}
                             </span>
-                            <span class="hidden md:inline text-xs text-gray-400"> Likes</span>
+                            <span class="hidden md:inline text-xs text-gray-400"> Posts</span>
                         </div>
                         <div class="flex flex-col items-center gap-1">
                             <span class="text-gray-500 text-sm font-medium">
-                                1.4K
+                                {{ userData?.followers }}
                             </span>
-                            <span class="hidden md:inline text-xs text-gray-400"> Follower</span>
+                            <span class="hidden md:inline text-xs text-gray-400"> Followers</span>
                         </div>
                         <div class="flex flex-col items-center gap-1">
                             <span class="text-gray-500 text-sm font-medium">
-                                1.2K
+                                {{ userData?.following }}
                             </span>
                             <span class="hidden md:inline text-xs text-gray-400"> Following</span>
                         </div>
-                        <div class="flex items-center justify-center h-8 p-2 btn-bg-gradient-success rounded-lg shadow-lg cursor-pointer">
+                        <div *ngIf="userData?.id != currentUser" class="flex items-center justify-center h-8 p-2 btn-bg-gradient-success rounded-lg shadow-lg cursor-pointer">
                             <button class="outline-none text-[var(--white)] font-semibold">ADD FRIEND</button>
                         </div>
                     </div>
@@ -48,41 +49,51 @@
 <!-- Main contain -->
 <div class="flex gap-6 pt-6">
     <div class="hidden xl:block w-[20%]">
-        <app-leftmenu/>
+        <div *ngIf="!isBlocked">
+            <app-leftmenu/>
+        </div>
     </div>
     <div class="w-full lg:w-[70%] xl:w-[50%]">
         <div class="flex flex-col gap-6">
             <div class="md:hidden flex flex-col items-center justify-center">
                 <div class="w-full h-64 relative">
-                    <img src="https://images.pexels.com/photos/31285311/pexels-photo-31285311.jpeg" alt="profile-banner" class="rounded-md object-cover h-full w-full"/>
-                    <img src="./images/user-3.jpg" alt="User" class="absolute left-0 right-0 m-auto -bottom-16 w-32 h-32 rounded-full object-cover ring-4 ring-white">
+                    <img src="{{ url + userData?.banner }}" alt="profile-banner" class="rounded-md object-cover h-full w-full"/>
+                    <img src="{{ url + userData?.img }}" alt="User" class="absolute left-0 right-0 m-auto -bottom-16 w-32 h-32 rounded-full object-cover ring-4 ring-white">
                 </div>
-                <h1 class="mt-20 mb-4 text-2xl font-medium text-[var(--black)]">Pinky Choudhary</h1>
+                <h1 class="mt-20 mb-4 text-2xl font-medium text-[var(--black)]">{{ userData?.username }}</h1>
                 <div class="flex justify-center items-center items-center gap-12 mb-4">
                     <div class="flex flex-col items-center gap-1">
                         <span class="text-gray-500 text-base font-medium">
-                            123
+                            {{ userData?.posts }}
                         </span>
                         <span class="text-sm text-gray-400"> Posts</span>
                     </div>
                     <div class="flex flex-col items-center gap-1">
                         <span class="text-gray-500 text-base font-medium">
-                            1.4K
+                            {{ userData?.followers }}
                         </span>
                         <span class="text-sm text-gray-400"> Follower</span>
                     </div>
                     <div class="flex flex-col items-center gap-1">
                         <span class="text-gray-500 text-base font-medium">
-                            1.2K
+                            {{ userData?.following }}
                         </span>
                         <span class="text-base text-gray-400"> Following</span>
                     </div>
                 </div>
             </div>
-            <app-feed/>
+            <!-- If your is blocked so that content not be show. -->
+            <div>
+                <div *ngIf="!isBlocked">
+                    <app-feed/>
+                </div>
+                <p class="w-full text-center text-lg text-gray-400 font-medium">{{blockedMessage}}.</p>
+            </div>
         </div>
     </div>
     <div class="hidden lg:block w-[30%]">
-        <app-rightmenu userId="test" />
+        <div *ngIf="!isBlocked">
+            <app-rightmenu userId="test"/>
+        </div>
     </div>
 </div>

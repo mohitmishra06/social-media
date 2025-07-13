@@ -18,10 +18,10 @@ export class LayoutComponent implements OnInit {
     // Call api for authorisation.
     this._apiCall.getApi('auth/user-session-data/').subscribe({
       // next() method will be executed only when there will be no error.
-      next :(response:any) => {        
+      next :(response:any) => {
         // On success.
         if(response.status === true){
-            this._userData.setUserData(response.data)            
+            this._userData.setUserData(response.data)
             return;
           }
           return;

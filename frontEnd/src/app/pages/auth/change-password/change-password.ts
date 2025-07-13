@@ -16,7 +16,7 @@ import { Change } from '../../../interface/auth.interface';
 })
 export class ChangePasswordComponent implements OnInit {
   icon = { faCircleXmark, faCircleCheck }
-  email:string = '';
+  userId:string = '';
   username:string = '';
   errorMessage:any;
 
@@ -25,11 +25,11 @@ export class ChangePasswordComponent implements OnInit {
   // Get params
   ngOnInit() {
     this._route.paramMap.subscribe(params => {
-      this.email = params.get('id')!;
+      this.userId = params.get('id')!;
     });
 
     // Call api for user details.
-    this._apiCall.getApiById('auth/user-details/', {"email":this.email}).subscribe({
+    this._apiCall.getApiById('auth/user-details/', {"id":this.userId}).subscribe({
       // next() method will be executed only when there will be no error.
       next :(response:any) => {
         if(response.status === true){
@@ -57,7 +57,7 @@ export class ChangePasswordComponent implements OnInit {
   changePassword(changeForm:NgForm){
     // Creating data for comparison.
     let changeData:Change = {
-      email: this.email,
+      id: this.userId,
       username: changeForm.value.username!,
       password: changeForm.value.password!
     }

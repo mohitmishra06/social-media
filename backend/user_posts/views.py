@@ -2,13 +2,17 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from user_posts.serializers import PostSerializers
 from user_posts.models import UserPostModels
+from linkup.general_function import GeneralFunction
 
 class UserPostView(APIView):
     # Get all records
     def get(self, request, format=None):
         try:
+            # Decrypt user id
+            user_id = GeneralFunction.decrypt(request.data.get("userId"))
+            
             # Get all data
-            posts = UserPostModels.objects.filter(user_id=request.data.get("userId"))
+            posts = UserPostModels.objects.filter(user_id=user_id)
             if not posts:
                 return Response({"code":400, "status":False, "msg":"Something went wrong", "errors":""})
             
@@ -22,8 +26,10 @@ class UserPostView(APIView):
     # Add new post
     def post(self, request, format=None):
         try:
+            # Decrypt user id
+            user_id = GeneralFunction.decrypt(request.data.get("userId"))
             data = {
-                "user":request.data.get("userId"),
+                "user":user_id,
                 "desc":request.data.get("desc")
             }
 
@@ -44,8 +50,11 @@ class UserPostView(APIView):
     # Partial update post
     def patch(self, request, format=None):
         try:
+            # Decrypt user id
+            user_id = GeneralFunction.decrypt(request.data.get("userId"))
+            
             # Get post for update
-            post = UserPostModels.objects.get(id=request.data.get("postId"), user_id=request.data.get("userId"))
+            post = UserPostModels.objects.get(id=request.data.get("postId"), user_id=user_id)
 
             # Create data
             data = {
@@ -68,9 +77,12 @@ class UserPostView(APIView):
         
     # Update post
     def put(self, request, format=None):
-        try:            
+        try:
+            # Decrypt user id
+            user_id = GeneralFunction.decrypt(request.data.get("userId"))
+            
             # Get post for update
-            post = UserPostModels.objects.get(id=request.data.get("postId"), user_id=request.data.get("userId"))
+            post = UserPostModels.objects.get(id=request.data.get("postId"), user_id=user_id)
 
             data = {
                 "desc":request.data.get("desc"),
@@ -94,8 +106,11 @@ class UserPostView(APIView):
     # Delete post
     def delete(self, request, format=None):
         try:
+            # Decrypt user id
+            user_id = GeneralFunction.decrypt(request.data.get("userId"))
+
             # Get post for update
-            post = UserPostModels.objects.get(id=request.data.get("postId"), user_id=request.data.get("userId"))
+            post = UserPostModels.objects.get(id=request.data.get("postId"), user_id=user_id)
 
             # Create data
             data = {

@@ -11,7 +11,7 @@ class User(models.Model):
     password = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     img = models.ImageField(upload_to="user_avatars", blank=True)
-    banner = models.ImageField(upload_to="user_banner", blank=True)
+    banner = models.ImageField(upload_to="user_banner", default="user_banner/gradient-color.jpeg")
     name = models.CharField(max_length=255, default='')
     surname = models.CharField(max_length=255, default='')
     description = models.CharField(max_length=255, default='')

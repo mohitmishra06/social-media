@@ -10,12 +10,11 @@ import { RouterModule } from '@angular/router';
 })
 export class ProfileCard implements OnInit{
   userDetails:any;
-
   constructor(private _userData:UserDataStore){}
 
   ngOnInit(): void {
     this._userData.glbUserData.subscribe(val=>{
       this.userDetails = val
-    })
+    })    
   }
 }

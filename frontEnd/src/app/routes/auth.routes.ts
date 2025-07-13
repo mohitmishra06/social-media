@@ -21,7 +21,7 @@ export const auth_routes: Routes = [
         component:RegisterComponent,
       },
       {
-        path:'otp-validator/:email',
+        path:'otp-validator/:id',
         component:OtpValidatorComponent,
       },
       {

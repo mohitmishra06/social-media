@@ -10,6 +10,7 @@ urlpatterns = [
     path('otp-validate/', UserAuthentication.as_view(), name='otp-validate'),
     path('change-password/', UserAuthentication.as_view(), name='change-password'),
     path('user-details/', views.user_details, name='user-details'),
+    path('profile-details/', views.profile_details, name='profile-details'),
     path('check-username/', views.check_username, name='check-username'),
     path('new-otp/', views.new_otp, name='new-otp'),
     path('token_validation/', UserTokenValidation.as_view(), name="token_validation")

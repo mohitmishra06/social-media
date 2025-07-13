@@ -4,7 +4,7 @@ export interface Login{
 }
 
 export interface Change{
-    email:string,
+    id:string,
     username:any,
     password:string,
 }
@@ -13,7 +13,11 @@ export interface Register{
     email:string
 }
 
+export interface Forgot{
+    id:string
+}
+
 export interface OTP{
     otp:any,
-    email:string
+    id:string
 }

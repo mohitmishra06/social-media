@@ -9,89 +9,18 @@ from django.utils import timezone
 import random
 import string
 
-# This library us for default image create
-from PIL import Image, ImageDraw, ImageFont
-from django.core.files.base import ContentFile
-import base64
-from io import BytesIO
-
-
 # Token library
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
 # Developer models and serializer
-from user_auth.serializers import UserRegisterSerializer, UserPWDChangeSerializer
+from user_auth.serializers import UserRegisterSerializer, UserPWDChangeSerializer, UserSerializer
 from user_auth.models import User
-from user_followers.models import UserFollowerModel
+from user_followers.models import UserFollowerModel, UserBlockModel
+from user_posts.models import UserPostModels
 
-# Create encrypt value for save the hacker
-from cryptography.fernet import Fernet, InvalidToken
-from django.conf import settings
-
-# Create token for the user
-def get_tokens_for_user(user):
-    if not user.is_active:
-      raise AuthenticationFailed("User is not active")
-
-    refresh = RefreshToken.for_user(user)
-
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
-
-# Create user default image
-def generate_avatar(initials="PM", size=256, font_size=150, output_dir="user_avatars"):
-    # If folder is not exist so its create a new folder
-    # os.makedirs(output_dir, exist_ok=True)
-
-    # Creates a random color for img background
-    background_colors = "#" + str(random.randint(100000, 999999))
-
-    # This creates a object for the new image with size and background color
-    img = Image.new('RGB', (size, size), background_colors)
-    # This drow the img accourding to new image object
-    draw = ImageDraw.Draw(img)
-
-    # This creates a object for the new image mask
-    mask = Image.new('L', (size, size), 0)
-    # This drow the img accourding to new image mask object
-    ImageDraw.Draw(mask).ellipse((0, 0, size, size), fill=255)
-
-    try:
-        # If font fammily is available so use it
-        font = ImageFont.truetype("arial.ttf", font_size)
-    except IOError:
-        # Otherwise use default font familly
-        font = ImageFont.load_default()
-
-    # This line create a box for the our character
-    bbox = draw.textbbox((0, 0), initials, font=font)
-    # This define height and width accourding to cordinate of "x"
-    text_width = bbox[2] - bbox[0]
-    text_height = bbox[3] - bbox[1]
-
-    # Now this line create possition for align center horizontal and vertical of the image
-    position = ((size - text_width) / 2, (size - text_height) / 2 - 10)
-
-    # This line creates text with color white, font family and position 
-    draw.text(position, initials, fill='white', font=font)
-
-    # This line creats a object which is create a final image
-    final_img = Image.new("RGB", (size, size))
-    # Here is creating image with the character and mask
-    final_img.paste(img, mask=mask)    
-    
-    # Create a buffer object for store image
-    buffer = BytesIO()
-    # In buffer object store image as temp
-    final_img.save(buffer, format="PNG")
-    # Get image reference from the buffer object
-    image_png = buffer.getvalue()
-    
-    # First convert the file into Files object and return a response
-    return ContentFile(image_png, name=f"{initials}_avatar.png")
+# General function import
+from linkup.general_function import GeneralFunction
 
 # Login
 class UserLogin(APIView):
@@ -103,8 +32,7 @@ class UserLogin(APIView):
         except User.DoesNotExist:
                 return Response({"code":404, "status":False, "msg":"No account was found with this username.", "errors": ""})
 
-        try:
-            
+        try:            
             # Check password is carrect or not
             password = check_password(request.data.get("password"), user.password)
 
@@ -112,7 +40,7 @@ class UserLogin(APIView):
                 return Response({"code":400, "status":False, "msg":"Passwords do not match.", "errors": ""})
             
             # Call jwt function for create token
-            token = get_tokens_for_user(user)
+            token = GeneralFunction.get_tokens_for_user(user)
             
             #  Create response with set_cookie function
             response = Response({"code":200, "status":True, "msg":"Login successful. Session started — enjoy!", "data":token})
@@ -142,15 +70,17 @@ class UserLogin(APIView):
     # This data use for whole program to work.
     def get(self, request):
         try:
+            # Get current user data
             token = RefreshToken(request.COOKIES.get("refresh_token"))
             user = User.objects.get(id=token["user_id"])
-            print(user.img.url)
+            
             if user:
                 followers = UserFollowerModel.objects.filter(follower_id = token["user_id"]).count()
-                print(followers)
+                
                 # Make data for user
                 user = {
-                    "userId": user.id,
+                    "userId": GeneralFunction.encrypt(user.id),
+                    "user": user.id,
                     "userName": user.username,
                     "userImg": request.build_absolute_uri(user.img.url) if user.img else None,
                     "userCover": request.build_absolute_uri(user.banner.url) if user.banner else None,
@@ -165,9 +95,6 @@ class UserLogin(APIView):
     # Logout  
     def put(self, request):
         try:
-            access_token = request.COOKIES.get("access_token")
-            refresh_token = request.COOKIES.get("refresh_token")
-
             response = Response({
                 "code": 200,
                 "status": True,
@@ -201,7 +128,7 @@ class UserAuthentication(APIView):
             initial = request.data.get("email")[0]
 
             # Call the function with required parameter
-            img_path = generate_avatar(initial.upper())
+            img_path = GeneralFunction.generate_avatar(initial.upper())
 
             # Get data from the api
             data = {
@@ -216,19 +143,20 @@ class UserAuthentication(APIView):
             # Validate data for empty or wrong value
             if serializer.is_valid():
                 # Create a new user
-                serializer.save()
+                save_data = serializer.save()
+                
+                # Reserialize data after user update
+                serializer = UserRegisterSerializer(save_data)
 
-                # # Call for the new otp function for save otp in table
+                # Call for the new otp function for save otp in table
                 response = new_otp(serializer)
 
                 # Send response accourding to status
                 if response.status_code == 200:
-                    # get fernet_key from settings.py
-                    fernet = Fernet(settings.FERNET_KEY)
-                    # convert the email to encrypt value
-                    encry_email = fernet.encrypt(str(serializer.data['email']).encode()).decode()
+                    # Call general encryption function for encrypt value
+                    encry_id = GeneralFunction.encrypt(serializer.data["id"])
 
-                return Response({"code":200, "status":True, "msg":"Registration complete. Please check your email for next steps", "data":encry_email})
+                return Response({"code":200, "status":True, "msg":"Registration complete. Please check your email for next steps", "data":encry_id})
             
             return Response({"code":400, "status":False, "msg":"Something went wrong", "errors":serializer.errors})
         except Exception as e:
@@ -237,15 +165,12 @@ class UserAuthentication(APIView):
     # Check for valid otp
     def get(self, request, format=None):
         try:
-            # Get fernet_key from settings.py
-            fernet = Fernet(settings.FERNET_KEY)
-
             # Dcrypt the comming encrypted value
-            email = fernet.decrypt(request.GET.get("email").encode()).decode()
+            user_id = GeneralFunction.decrypt(request.GET.get("id"))
 
             # Get verified user data using email and otp
             user = User.objects.get(
-                email=email,
+                id=user_id,
                 otp_code=request.GET.get("otp")
             )
             
@@ -262,14 +187,11 @@ class UserAuthentication(APIView):
     # Change password
     def put(self, request, format=None):
         try:
-            # Get fernet_key from settings.py
-            fernet = Fernet(settings.FERNET_KEY)
-
             # Dcrypt the comming encrypted value
-            email = fernet.decrypt(request.data.get("email").encode()).decode()
+            user_id = GeneralFunction.decrypt(request.data.get("id"))
 
             # Validate user exits or not
-            user = User.objects.get(email=email)
+            user = User.objects.get(id=user_id)
 
             # Create data
             data = {
@@ -290,20 +212,78 @@ class UserAuthentication(APIView):
         except IntegrityError:
             return Response({"code":400, "status":False, "msg":"This username is used already.", "errors":""})
               
-# Get user by email
+# Get user by id
 def user_details(request):
-    # Get fernet_key from settings.py
-    fernet = Fernet(settings.FERNET_KEY)
-
-    # Dcrypt the comming encrypted value
-    email = fernet.decrypt(request.GET.get("email").encode()).decode()
-
     try:
-        user = User.objects.get(email=email)
+        # Dcrypt the comming encrypted value
+        user_id = GeneralFunction.decrypt(request.GET.get("id"))
+        
+        # Get user
+        user = User.objects.get(id=user_id)
+        
         if not user:
             return JsonResponse({"code":404, "status":False, "msg":"User doesn't exists.", "errors": ''})
         
         return JsonResponse({"code":200, "status":True, "msg":"Change your username and password", "data":user.username})
+    
+    except Exception as e:
+        return JsonResponse({"code":404, "status":False, "msg":"The OTP you entered is incorrect", "errors": e})
+
+# Get profile data using id
+def profile_details(request):
+    try:
+        # Get current user id
+        token = RefreshToken(request.COOKIES.get("refresh_token"))
+        print(token["user_id"])
+        
+        # Dcrypt the comming encrypted value
+        user_id = GeneralFunction.decrypt(request.GET.get("id"))
+
+        # Get user
+        user = User.objects.get(id=user_id)
+
+        blocked_user = UserBlockModel.objects.get(blocker_id=user_id, blocked_id=token["user_id"])
+
+    except UserBlockModel.DoesNotExist:
+        user = {
+            "id":user.id,
+            "banner":user.banner,
+            "img":user.img,
+            "username":user.username,
+            "email":user.email,
+        }
+        serializer = UserSerializer(user)
+        serialized_data = serializer.data
+        serialized_data["block"] = True  # Add custom field here
+        print(serializer)
+        return JsonResponse({"code":403, "status":True, "msg":"You can't see this profile because the user blocked you", "data":serialized_data})
+
+    try:        
+        
+        # Get currint user followers
+        followers = UserFollowerModel.objects.filter(follower_id = user_id).count()
+
+        # Get currint user Following
+        following = UserFollowerModel.objects.filter(following_id = user_id).count()
+
+        # Get currint user posts
+        posts = UserPostModels.objects.filter(user_id=user_id).count()
+
+        # Serialize the user
+        user_data = UserSerializer(user).data
+
+        # Append additional data
+        user_data.update({
+            "followers": followers,
+            "following": following,
+            "posts": posts,
+        })
+
+
+        if not user:
+            return JsonResponse({"code":404, "status":False, "msg":"User doesn't exists.", "errors": ''})
+        
+        return JsonResponse({"code":200, "status":True, "msg":"Change your username and password", "data":user_data})
     
     except Exception as e:
         return JsonResponse({"code":404, "status":False, "msg":"The OTP you entered is incorrect", "errors": e})
@@ -326,33 +306,27 @@ def check_username(request):
     
 # Genereate new otp
 def new_otp(request):
-    # When direct api call set email value from the request.body
-    # and when register function calls set email value using request.
-    email = ''
-    try:
-        # data = json.loads(request.body)
-        # email = data.get("email")
+    user_id = 0
 
-        # Get fernet_key from settings.py
-        fernet = Fernet(settings.FERNET_KEY)
+    # If request is come with data method using serialization
+    if not hasattr(request, 'data'):
+        # Dcrypt the comming encrypted value
+        res = GeneralFunction.decrypt(request.GET.get("id"))
 
-        # Dcrypt the comming encrypted value.
-        email = fernet.decrypt(request.GET.get("email").encode()).decode()
-
-    # This works when the email is not encrypted.
-    except InvalidToken:
-        email = request.GET.get("email")
-
-    # When the email come from serializer data.
-    except:
-        email = request.data.get("email")
+        if int(res) > 0:
+            user_id = res
+        else:
+            user = User.objects.get(email=request.GET.get("id"))
+            user_id = user.id
+    else:
+        user_id = request.data.get("id")
 
     try:
         # Generate otp.
         otp = random.randint(100000, 999999)
 
         # Update otp in table.
-        save_otp = User.objects.get(email=email)
+        save_otp = User.objects.get(id=user_id)
         save_otp.otp_code = otp
         save_otp.save()
 
@@ -363,18 +337,16 @@ def new_otp(request):
             <p>The OTP will expire in 10 minutes.</p>
         '''
         email_from = 'mohitmishra.falna850@yahoo.com'
-        to = email
+        to = save_otp.email
 
         user_msg = EmailMultiAlternatives(subject, msg, email_from, [to])
         user_msg.content_subtype = 'html'
         user_msg.send()
-                
-        # Get fernet_key from settings.py
-        fernet = Fernet(settings.FERNET_KEY)
+
         # Convert the email to encrypt value.
-        encry_email = fernet.encrypt(str(email).encode()).decode()
-        
-        return JsonResponse({"code":200, "status":True, "msg":"Your OTP has been sent to your email! Please check it.", "data":encry_email})
+        encry_id = GeneralFunction.encrypt(user_id)
+
+        return JsonResponse({"code":200, "status":True, "msg":"Your OTP has been sent to your email! Please check it.", "data":encry_id})
     
     except Exception as e:
         return JsonResponse({"code":500, "status":False, "msg":"Internal server error", "errors": f"Failed to send email: {str(e)}"})

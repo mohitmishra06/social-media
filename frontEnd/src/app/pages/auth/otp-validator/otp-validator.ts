@@ -19,7 +19,7 @@ export class OtpValidatorComponent implements OnInit{
   icon = { faCircleXmark, faCircleCheck }
   // Get otp in a string
   otp:string = ''
-  email:string = '';
+  userId:string = '';
 
   constructor(
     private _apiCall:ApiCallingService,
@@ -31,7 +31,7 @@ export class OtpValidatorComponent implements OnInit{
   // Get params
   ngOnInit() {
     this._route.paramMap.subscribe(params => {
-      this.email = params.get('email')!;
+      this.userId = params.get('id')!;
     });    
   }
 
@@ -61,7 +61,7 @@ export class OtpValidatorComponent implements OnInit{
     // Creating data for comparison.
     let otpData:OTP = {
       otp: this.otp,
-      email:this.email
+      id:this.userId
     }
 
     // Call api for otp verification.
@@ -74,7 +74,7 @@ export class OtpValidatorComponent implements OnInit{
             return;
           }
           this._tostr.toasterStatus(['text-gray-600', response.msg]);
-          this._router.navigate(['/auth/change-password/' + this.email]);
+          this._router.navigate(['/auth/change-password/' + this.userId]);
           return;
         }
     });
@@ -84,7 +84,7 @@ export class OtpValidatorComponent implements OnInit{
   // Get new otp
   newOTP(){
     // Call api for new otp.
-    this._apiCall.getApiById('auth/new-otp/', {'email':this.email}).subscribe({
+    this._apiCall.getApiById('auth/new-otp/', {'id':this.userId}).subscribe({
       // next() method will be executed only when there will be no error.
       next :(response:any) => {
         // On success

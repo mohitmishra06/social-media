@@ -5,7 +5,7 @@ from user_auth.models import User
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields=["email", "username", "img"]
+        fields=["id","email", "username", "img"]
         extra_kwargs={
             "otp_code":{"write_only":True}
         }
@@ -14,8 +14,17 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class UserPWDChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields=["email", "username", "password"]
+        fields=["id", "email", "username", "password"]
         extra_kwargs={
             "password":{"write_only":True}
-        }   
+        }
+
+# Users all details
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields="__all__"
+        extra_kwargs={
+            "password":{"write_only":True}
+        }
     

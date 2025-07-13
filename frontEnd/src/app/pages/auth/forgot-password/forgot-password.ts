@@ -4,7 +4,7 @@ import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validator
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { ApiCallingService } from '../../../services/api/api-calling.service';
-import { Register } from '../../../interface/auth.interface';
+import { Forgot } from '../../../interface/auth.interface';
 import { Router, RouterModule } from '@angular/router';
 import { Toastr } from '../../../services/toastr/toastr';
 
@@ -15,7 +15,6 @@ import { Toastr } from '../../../services/toastr/toastr';
   imports: [ReactiveFormsModule, CommonModule, FontAwesomeModule, RouterModule]
 })
 export class ForgotPasswordComponent {
-
   icon = {faCircleXmark, faCircleCheck}
   constructor(private _apiCall:ApiCallingService, private _router:Router, private _tostr:Toastr){}
   
@@ -34,8 +33,8 @@ export class ForgotPasswordComponent {
 
   forgotPassword(){
     // Creating data for comparison.
-    let forgotData:Register = {
-      email: this.fogForm.value.email!,
+    let forgotData:Forgot = {
+      id: this.fogForm.value.email!,
     }
 
     // Call api for authorisation.
