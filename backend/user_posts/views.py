@@ -9,19 +9,23 @@ class UserPostView(APIView):
     def get(self, request, format=None):
         try:
             # Decrypt user id
-            user_id = GeneralFunction.decrypt(request.data.get("userId"))
+            profile_id = request.GET.get("id")
             
             # Get all data
-            posts = UserPostModels.objects.filter(user_id=user_id)
+            start=0
+            end=8
+            posts = UserPostModels.objects.filter(user_id=profile_id).order_by('-created_at')[start:end]
+            
             if not posts:
                 return Response({"code":400, "status":False, "msg":"Something went wrong", "errors":""})
             
             # 🔥 Serialize the queryset
             serialized_posts = PostSerializers(posts, many=True)
+
             return Response({"code":200, "status":True, "msg":"You have created a post.", "data":serialized_posts.data})
             
-        except UserPostModels.DoesNotExist:
-            return Response({"code":500, "status":False, "msg":"No post found", "errors":""})
+        except Exception as e:
+            return Response({"code":500, "status":False, "msg":"No post found", "errors":e})
 
     # Add new post
     def post(self, request, format=None):
@@ -131,3 +135,4 @@ class UserPostView(APIView):
         except Exception as e:
             return Response({"code":500, "status":False, "msg":"Something went wrong", "errors":""})
   
+# Outside function which is call directly

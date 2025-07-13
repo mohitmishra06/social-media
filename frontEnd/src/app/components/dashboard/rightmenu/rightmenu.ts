@@ -6,6 +6,7 @@ import { Birthdays } from "./birthdays/birthdays";
 import { AcceptedFriends } from "./accepted-friends/accepted-friends";
 import { UserInformationCard } from "../../profile/user-information-card/user-information-card";
 import { UserMediaCard } from "../../profile/user-media-card/user-media-card";
+import { User } from '../../../interface/user.interface';
 
 @Component({
   selector: 'app-rightmenu',
@@ -13,6 +14,11 @@ import { UserMediaCard } from "../../profile/user-media-card/user-media-card";
   templateUrl: './rightmenu.html',
   styleUrl: './rightmenu.css'
 })
+
 export class Rightmenu {
-  @Input() userId?:string;
+  @Input() user?:User;
+  
+
+  ngOnInit():void{
+  }
 }

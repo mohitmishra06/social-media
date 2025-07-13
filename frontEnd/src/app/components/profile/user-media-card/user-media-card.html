@@ -9,44 +9,9 @@
     </div>
     <!-- Bottom -->
     <div class="flex flex-wrap gap-4 mt-4">
-        <div class="relative w-1/5">
+        <div class="relative w-1/5" *ngFor="let post of posts">
             <figure>
-                <img src="./images/user-3.jpg" alt="user media" class="object-cover rounded-md h-24 w-full">
-            </figure>
-        </div>
-        <div class="relative w-1/5">
-            <figure>
-                <img src="./images/user-3.jpg" alt="user media" class="object-cover rounded-md h-24 w-full">
-            </figure>
-        </div>
-        <div class="relative w-1/5">
-            <figure>
-                <img src="./images/user-3.jpg" alt="user media" class="object-cover rounded-md h-24 w-full">
-            </figure>
-        </div>
-        <div class="relative w-1/5">
-            <figure>
-                <img src="./images/user-3.jpg" alt="user media" class="object-cover rounded-md h-24 w-full">
-            </figure>
-        </div>
-        <div class="relative w-1/5">
-            <figure>
-                <img src="./images/user-3.jpg" alt="user media" class="object-cover rounded-md h-24 w-full">
-            </figure>
-        </div>
-        <div class="relative w-1/5">
-            <figure>
-                <img src="./images/user-3.jpg" alt="user media" class="object-cover rounded-md h-24 w-full">
-            </figure>
-        </div>
-        <div class="relative w-1/5">
-            <figure>
-                <img src="./images/user-3.jpg" alt="user media" class="object-cover rounded-md h-24 w-full">
-            </figure>
-        </div>
-        <div class="relative w-1/5">
-            <figure>
-                <img src="./images/user-3.jpg" alt="user media" class="object-cover rounded-md h-24 w-full">
+                <img src="{{ url + post.post_img}}" alt="user media" class="object-cover rounded-md h-24 w-full">
             </figure>
         </div>
     </div>

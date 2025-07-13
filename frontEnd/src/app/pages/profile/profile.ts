@@ -9,6 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiCallingService } from '../../services/api/api-calling.service';
 import { environment } from '../../../environments/environment.development';
 import { CommonModule } from '@angular/common';
+import { User } from '../../interface/user.interface';
 
 @Component({
   selector: 'app-profile',
@@ -20,9 +21,9 @@ export class Profile implements OnInit{
   icon = { faThumbsUp };
   currentUser:any;
   userId:any;
-  userData:any;
+  userData?:User;
   url:string="";
-  isBlocked:boolean=false;
+  isBlocked?:boolean=false;
   blockedMessage:string="";
   
   constructor(
@@ -54,8 +55,8 @@ export class Profile implements OnInit{
         // On success.
         if(response.status === true){
             this.userData = response.data
-            this.isBlocked = this.userData.block;
-            this.blockedMessage = response.msg
+            this.isBlocked = this.userData?.block;
+            this.blockedMessage = response.msg            
             return;
           }
           return;

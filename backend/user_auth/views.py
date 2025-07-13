@@ -234,29 +234,44 @@ def profile_details(request):
     try:
         # Get current user id
         token = RefreshToken(request.COOKIES.get("refresh_token"))
-        print(token["user_id"])
-        
+
         # Dcrypt the comming encrypted value
         user_id = GeneralFunction.decrypt(request.GET.get("id"))
 
         # Get user
         user = User.objects.get(id=user_id)
 
+        # Let's find user is block or not
         blocked_user = UserBlockModel.objects.get(blocker_id=user_id, blocked_id=token["user_id"])
 
+        # If user is blocked data will not come
+        if blocked_user:         
+            user = {
+                "id":user.id,
+                "banner":user.banner,
+                "img":user.img,
+                "username":user.username,
+                "email":user.email,
+            }
+            serializer = UserSerializer(user)
+            serialized_data = serializer.data
+            serialized_data["block"] = True  # Add custom field here
+            return JsonResponse({"code":403, "status":True, "msg":"You can't see this profile because the user blocked you", "data":serialized_data})
+
+    # First time do not found any entry that's time genereate exception
     except UserBlockModel.DoesNotExist:
-        user = {
-            "id":user.id,
-            "banner":user.banner,
-            "img":user.img,
-            "username":user.username,
-            "email":user.email,
-        }
-        serializer = UserSerializer(user)
-        serialized_data = serializer.data
-        serialized_data["block"] = True  # Add custom field here
-        print(serializer)
-        return JsonResponse({"code":403, "status":True, "msg":"You can't see this profile because the user blocked you", "data":serialized_data})
+        # user = {
+        #         "id":user.id,
+        #         "banner":user.banner,
+        #         "img":user.img,
+        #         "username":user.username,
+        #         "email":user.email,
+        #     }
+        # serializer = UserSerializer(user)
+        # serialized_data = serializer.data
+        # serialized_data["block"] = False  # Add custom field here
+        # return JsonResponse({"code":403, "status":True, "msg":"You can't see this profile because the user blocked you", "data":serialized_data})
+        pass
 
     try:        
         

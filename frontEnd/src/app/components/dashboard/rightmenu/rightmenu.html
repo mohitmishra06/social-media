@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6">
-    <div *ngIf="userId">
-        <app-user-information-card userId="userId"/>
-        <app-user-media-card  userId="userId"/>
+    <div *ngIf="user">
+        <app-user-information-card [user]="user"/>
+        <app-user-media-card  [user]="user"/>
     </div>
     <app-friend-requests />
     <app-accepted-friends/>

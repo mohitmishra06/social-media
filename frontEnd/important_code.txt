@@ -1,0 +1,60 @@
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-follow',
+  templateUrl: './follow.component.html',
+})
+export class FollowComponent {
+  isFollowing = false;
+  isFollowingSent = false;
+
+  get followStatus(): string {
+    if (this.isFollowing) {
+      return 'Following';
+    } else if (this.isFollowingSent) {
+      return 'Request sent';
+    } else {
+      return 'Follow';
+    }
+  }
+
+  onFollowClick(): void {
+    if (!this.isFollowing && !this.isFollowingSent) {
+      this.isFollowingSent = true;
+    }
+  }
+
+  onUnfollowClick(): void {
+    this.isFollowing = false;
+    this.isFollowingSent = false;
+  }
+
+  onAcceptRequest(): void {
+    this.isFollowing = true;
+    this.isFollowingSent = false;
+  }
+}
+🟩 follow.component.html (Template View)
+html
+Copy
+Edit
+<!-- Status Label (Optional) -->
+<p>Status: {{ followStatus }}</p>
+
+<!-- Button Logic Based on State -->
+<button *ngIf="!isFollowing && !isFollowingSent" (click)="onFollowClick()">
+  Follow
+</button>
+
+<button *ngIf="isFollowingSent && !isFollowing" disabled>
+  Request Sent
+</button>
+
+<button *ngIf="isFollowing" (click)="onUnfollowClick()">
+  Following (Unfollow)
+</button>
+
+<!-- Optional button to simulate accepting the follow request -->
+<button *ngIf="isFollowingSent && !isFollowing" (click)="onAcceptRequest()">
+  Accept Request
+</button>

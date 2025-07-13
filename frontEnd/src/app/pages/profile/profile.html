@@ -87,13 +87,13 @@
                 <div *ngIf="!isBlocked">
                     <app-feed/>
                 </div>
-                <p class="w-full text-center text-lg text-gray-400 font-medium">{{blockedMessage}}.</p>
+                <p *ngIf="isBlocked" class="w-full text-center text-lg text-gray-400 font-medium">{{blockedMessage}}.</p>
             </div>
         </div>
     </div>
     <div class="hidden lg:block w-[30%]">
         <div *ngIf="!isBlocked">
-            <app-rightmenu userId="test"/>
+            <app-rightmenu [user]="userData"/>
         </div>
     </div>
 </div>

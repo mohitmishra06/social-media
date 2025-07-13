@@ -50,7 +50,10 @@ export class ApiCallingService {
   }
 
   // Delete api for delete particular data.
-  deleteApi(apiRoute:any): Observable<any>{
-    return this._httpClient.delete(`${environment.BACKEND_BASEURL}${apiRoute}`, { withCredentials: true });
+  deleteApi(apiRoute:any, data:any=null): Observable<any>{
+    return this._httpClient.delete(`${environment.BACKEND_BASEURL}${apiRoute}`, {
+      body: data,
+      withCredentials: true
+    });
   }
 }
