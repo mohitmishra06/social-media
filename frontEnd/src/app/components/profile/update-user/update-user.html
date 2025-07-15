@@ -1,1 +1,157 @@
-<p>update-user works!</p>
+<div class="">
+    <span class="text-sm cursor-pointer" (click)="setOpen()">Update</span>
+    <div *ngIf="isOpenModal" class="fixed w-screen h-screen top-0 left-0 bg-[#000000cf] flex items-center justify-center z-50">
+        <div class="relative group bg-white rounded-lg shadow-md flex flex-col gap-2 w-full md:w-1/2 xl:w-1/2">
+            <div class="flex flex-col">
+                <!-- Header -->
+                 <!-- Profile and Banner image change block -->
+                <div class="relative ">
+                    <figure class="w-full shadow-xl">
+                        <img src="{{ url + userDetails.banner }}" alt="banner-img" class="h-50 w-full object-cover rounded-lg">
+                        <input type="file" #bannerInput hidden (change)="updateBanner($event)">
+                        <div class="absolute right-3 top-14 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-800 flex items-center justify-center w-10 h-10 rounded-full bg-[#ffffff75]  cursor-pointer" (click)="bannerInput.click()"><fa-icon [icon]="icon.faPen" class="text-black text-xl"/></div>
+                    </figure>
+                    <figure class="absolute bottom-[-3rem] left-[50%] sm:left-[50%] md:left-3 ring-3 ring-white rounded-full  shadow-xl">
+                        <img src="{{ url + userDetails.img }}" alt="user-img" class="relative object-cover rounded-full w-20 h-20">
+                        <input type="file" #profileImageInput hidden (change)="updateUserImage($event)">
+                        <div class="absolute top-0 left-0 bg-[#000000a3] h-full w-full rounded-full flex items-center justify-center z-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-800 cursor-pointer"><fa-icon [icon]="icon.faCamera" class="text-white text-2xl" (click)="profileImageInput.click()" /></div>
+                    </figure>
+                </div>
+
+                <!-- Small screen tab link block -->
+                <div class="sm:block md:hidden flex justify-center mt-17 p-2">
+                    <ul class="flex gap-4">
+                        <li class="text-base text-gray-500 cursor-pointer p-2 {{ isTabOpen ? ' border-1 border-gray-200' : ''}}" (click)="setTabOpen(true)">Personal Details</li>
+                        <li class="text-base text-gray-500 cursor-pointer p-2 {{ isTabOpen ? '' : ' border-1 border-gray-200'}}" (click)="setTabOpen(false)">Password Change</li>
+                    </ul>
+                </div>
+                <hr class="border-t-1 border-gray-200 mt-17 sm:mt-0 md:mt-17">
+                <!-- Body -->
+                 <!-- Large screen tab link block -->
+                <div class="flex mt-6 mb-5 w-full space-4 p-2">
+                    <div class="w-[28%] sm:hidden md:block md:w-[28%] flex justify-center">
+                        <ul class="flex flex-col gap-4">
+                            <li class="text-sm text-gray-500 cursor-pointer p-2 w-full {{ isTabOpen ? ' border-b-1 border-gray-300' : ''}}" (click)="setTabOpen(true)">Personal Details</li>
+                            <li class="text-sm text-gray-500 cursor-pointer p-2  {{ isTabOpen ? '' : ' border-b-1 border-gray-300'}}" (click)="setTabOpen(false)">Password Change</li>
+                        </ul>
+                    </div>
+                    <!-- Vertical separator -->
+                    <div class="w-px h-70 bg-gray-300 mr-3"></div>
+                    <!-- Personal details update block -->
+                    <div class="w-[70%] sm:w-[100%] md-w-[70%]">
+                       <div class="{{ isTabOpen ? 'block' : 'hidden'}}">
+                            <form action="" [formGroup]="updateForm" class="w-full flex flex-col gap-3">
+                                <div class="flex sm:block md:flex gap-2">
+                                    <div class="w-full mt-0 sm:mt-2 md:mt-0">
+                                        <div class="border-b-2 border-gray-200 rounded-xl">
+                                            <input type="text" required formControlName="name" class="w-full text-base text-gray-400 transparent border-none outline-none p-2" placeholder="Name">
+                                        </div>
+                                         <span *ngIf="updateForm.controls.name.errors && updateForm.controls.name.touched" class=" tooltip">
+                                            <span class="text-[var(--btn-danger)]" *ngIf="updateForm.controls.name.errors?.['required']">Name is required.</span>
+                                        </span>
+                                    </div>
+                                    <div class="w-full mt-0 sm:mt-2 md:mt-0">
+                                        <div class="border-b-2 border-gray-200 rounded-xl">
+                                            <input type="text" required formControlName="surname" class="w-full text-base text-gray-400 transparent border-none outline-none p-2" placeholder="Surname">
+                                        </div>
+                                         <span *ngIf="updateForm.controls.surname.errors && updateForm.controls.surname.touched" class=" tooltip">
+                                            <span class="text-[var(--btn-danger)]" *ngIf="updateForm.controls.surname.errors?.['required']">Email is required.</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex sm:block md:flex gap-2">
+                                    <div class="w-full mt-0 sm:mt-2 md:mt-0">
+                                        <div class="border-b-2 border-gray-200 rounded-xl">
+                                            <input type="text" required formControlName="email" class="w-full text-base text-gray-400 transparent border-none outline-none p-2" placeholder="Email">
+                                        </div>
+                                         <span *ngIf="(updateForm.controls.email.errors && updateForm.controls.email.touched) || (updateForm.errors && updateForm.controls.email.touched)" class=" tooltip">
+                                            <span class="text-[var(--btn-danger)]" *ngIf="updateForm.controls.email.errors?.['required']">Email field is required.</span>
+                                            <span class="text-[var(--btn-danger)]" *ngIf="updateForm.errors?.['mismatch'] === true">Valid email.</span>
+                                        </span>
+                                    </div>
+                                    <div class="w-full mt-0 sm:mt-2 md:mt-0">
+                                        <div class="border-b-2 border-gray-200 rounded-xl">
+                                            <input type="text" required formControlName="school" class="w-full text-base text-gray-400 transparent border-none outline-none p-2" placeholder="School">
+                                        </div>
+                                         <span *ngIf="updateForm.controls.school.errors && updateForm.controls.school.touched" class=" tooltip">
+                                            <span class="text-[var(--btn-danger)]" *ngIf="updateForm.controls.school.errors?.['required']">School name is required.</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex sm:block md:flex gap-2">
+                                    <div class="w-full mt-0 sm:mt-2 md:mt-0">
+                                        <div class="border-b-2 border-gray-200 rounded-xl">
+                                            <input type="text" required formControlName="work" class="w-full text-base text-gray-400 transparent border-none outline-none p-2" placeholder="Work">
+                                        </div>
+                                         <span *ngIf="updateForm.controls.work.errors && updateForm.controls.work.touched" class=" tooltip">
+                                            <span class="text-[var(--btn-danger)]" *ngIf="updateForm.controls.work.errors?.['required']">Your workplace is required.</span>
+                                        </span>
+                                    </div>
+                                    <div class="w-full mt-0 sm:mt-2 md:mt-0">
+                                        <div class="border-b-2 border-gray-200 rounded-xl">
+                                            <input type="text" required formControlName="website" class="w-full text-base text-gray-400 transparent border-none outline-none p-2" placeholder="Website">
+                                        </div>
+                                         <span *ngIf="updateForm.controls.website.errors && updateForm.controls.website.touched" class=" tooltip">
+                                            <span class="text-[var(--btn-danger)]" *ngIf="updateForm.controls.website.errors?.['required']">Password is required.</span>
+                                            <span class="text-[var(--btn-danger)]" *ngIf="updateForm.controls.website.errors?.['minlength']">Website should be at least 8 charector.</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex sm:block md:flex gap-2">
+                                    <div class="w-full mt-0 sm:mt-2 md:mt-0">
+                                        <div class="border-b-2 border-gray-200 rounded-xl">
+                                            <input type="text" required formControlName="city" class="w-full text-base text-gray-400 transparent border-none outline-none p-2" placeholder="City">
+                                        </div>
+                                         <span *ngIf="updateForm.controls.city.errors && updateForm.controls.city.touched" class=" tooltip">
+                                            <span class="text-[var(--btn-danger)]" *ngIf="updateForm.controls.city.errors?.['required']">City is required.</span>
+                                        </span>
+                                    </div>
+                                    <div class="w-full mt-0 sm:mt-2 md:mt-0">
+                                        <div class="border-b-2 border-gray-200 rounded-xl">
+                                            <input type="text" required formControlName="desc" class="w-full text-base text-gray-400 transparent border-none outline-none p-2" placeholder="desc">
+                                        </div>
+                                         <span *ngIf="updateForm.controls.desc.errors && updateForm.controls.desc.touched" class=" tooltip">
+                                            <span class="text-[var(--btn-danger)]" *ngIf="updateForm.controls.desc.errors?.['required']">Description is required.</span>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-col gap-1">
+                                    <button class="btn-bg-gradient-success text-white text-sm rounded-md p-2 cursor-pointer">Update</button>
+                                </div>
+                            </form>
+                       </div>
+                       <!-- Password change block -->
+                       <div class="{{ isTabOpen ? 'hidden' : 'block'}}">
+                        <form action="" *ngIf="changePasswordForm" [formGroup]="changePasswordForm">
+                            <div class="flex sm:block md:flex gap-2">
+                                <div class="w-full mt-0 sm:mt-2 md:mt-0">
+                                    <div class="border-b-2 border-gray-200 rounded-xl">
+                                        <input type="text" required formControlName="username" [value]="userDetails.username" class="w-full text-base text-gray-400 transparent border-none outline-none p-2" placeholder="Username">
+                                    </div>
+                                     <span *ngIf="changePasswordForm.controls.username.errors && changePasswordForm.controls.username.touched" class=" tooltip">
+                                        <span class="text-[var(--btn-danger)]" *ngIf="changePasswordForm.controls.username.errors?.['required']">Username is required.</span>
+                                    </span>
+                                </div>
+                                <div class="w-full mt-0 sm:mt-2 md:mt-0">
+                                    <div class="border-b-2 border-gray-200 rounded-xl">
+                                        <input type="password" required formControlName="password" [value]="userDetails.password" class="w-full text-base text-gray-400 transparent border-none outline-none p-2" placeholder="Password">
+                                    </div>
+                                     <span *ngIf="changePasswordForm.controls.password.errors && changePasswordForm.controls.password.touched" class=" tooltip">
+                                        <span class="text-[var(--btn-danger)]" *ngIf="changePasswordForm.controls.password.errors?.['required']">Password is required.</span>
+                                        <span class="text-[var(--btn-danger)]" *ngIf="changePasswordForm.controls.password.errors?.['minlength']">Password should be at least 8 charector.</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1 mt-5" (click)="changePassword()">
+                                <button type="button" class="btn-bg-gradient-success text-white text-sm rounded-md p-2 cursor-pointer">Update</button>
+                            </div>
+                        </form>
+                       </div>
+                    </div>
+                </div>
+            </div>
+            <div class="absolute right-3 top-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-800 flex items-center justify-center w-10 h-10 rounded-full bg-[#ffffff75] cursor-pointer" (click)="setOpen()"><fa-icon [icon]="icon.faClose" class="text-black text-xl"/></div>
+        </div>
+    </div>
+</div>

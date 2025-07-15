@@ -3,8 +3,16 @@
      <div class="">
         <div class="flex justify-between items-center">
             <span class="text-base font-semibold text-[var(--black)]">User Information</span>
-            <span class="text-sm text-blue-500 cursor-pointer">
-                {{ (user?.id != currentUser) ? "See all" : "Update"}}
+            <span class="text-sm text-blue-500">
+                <!-- Show "See all" if user.id is not equal to currentUser -->
+                <span *ngIf="user?.id !== currentUser">See all</span>
+
+                <!-- 
+                    Show the update user component if user.id equals currentUser 
+                    and send encrypted user id to the update component.
+                 -->
+                <app-update-user *ngIf="user?.id === currentUser" [currentuser]="userId"/>
+
             </span>
         </div>
         <!-- Divider -->

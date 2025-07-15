@@ -16,6 +16,7 @@ export class FriendRequests {
   allFriendRequests:any;
   url = environment.IMG_BASEURL;
   userId:any;
+  isFriendRequestStatus:boolean = false;
 
   constructor(
     private _apiCall:ApiCallingService,
@@ -36,7 +37,7 @@ export class FriendRequests {
     this._apiCall.getApi("users/friend-requests/", {"id":id}).subscribe({
       next: (response: any) => {
         if (response.status === true) {        
-          this.allFriendRequests = response.data;          
+          this.allFriendRequests = response.data;                    
           // Maybe redirect or show an alert
         } else {
           this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.error])
@@ -46,5 +47,54 @@ export class FriendRequests {
         console.error("API call failed", err);
       }
     });
+  }
+
+  // Accept friend request
+  acceptFriendRequest(id:string){
+    this._apiCall.postApi("users/friend-requests/", {"id":id}).subscribe({
+      next: (response: any) => {
+        if (response.status === true) {        
+          this.isFriendRequestStatus = response.data;
+          console.log(this.isFriendRequestStatus);
+          
+          this._tostr.toasterStatus(["text-[var(--btn-success)]", response.msg])
+          
+          // Maybe redirect or show an alert
+        } else {
+          this.isFriendRequestStatus = response.data;
+          this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.error])
+        }
+      },
+      error: (err) => {
+        console.error("API call failed", err);
+      }
+    });
+  }
+
+  // Decline friend request
+  declineFriendRequest(id:string){
+    this._apiCall.deleteApi("users/friend-requests/", {"id":id}).subscribe({
+      next: (response: any) => {
+        if (response.status === true) {        
+          this.isFriendRequestStatus = response.data;
+          this._tostr.toasterStatus(["text-[var(--btn-success)]", response.msg])
+        } else {
+          this.isFriendRequestStatus = response.data;
+          this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.error])
+        }
+      },
+      error: (err) => {
+        console.error("API call failed", err);
+      }
+    });
+  }
+
+  // Set the button as condition
+  get requestStatus(): boolean {
+    if (this.isFriendRequestStatus) {
+      return true;
+    } else {
+      return this.isFriendRequestStatus;
+    }
   }
 }

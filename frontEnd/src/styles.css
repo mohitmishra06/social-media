@@ -23,6 +23,11 @@
   --bg-mask:linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7))
 }
 
+html{
+  transition: all;
+  transition-duration: 8s;
+}
+
 .bg-three-gradient{
     background: #F0F0F0 ;
     background: linear-gradient(58deg,rgb(210 204 204) 0%, rgba(237, 250, 253, 1) 50%, rgb(214 212 212) 100%);

@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import JsonResponse
 from user_followers.models import UserFollowerModel, UserFollowerRequestModel, UserBlockModel
-from user_followers.serializers import FollowerRequestSerializers, FriendRequestWithUserDetailsSerialization, BlockSerializers
+from user_followers.serializers import FollowersSerializers, FollowerRequestSerializers, FriendRequestWithUserDetailsSerialization, BlockSerializers
 from linkup.general_function import GeneralFunction
 
 # Import library for token
@@ -35,7 +35,7 @@ class UserFollowersView(APIView):
         except Exception as e:
                 return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":e})
 
-    # User follow
+    # User follow request
     def delete(self, request, formate=None):
         # Get current user id
         current_user = RefreshToken(request.COOKIES.get("refresh_token"))
@@ -73,13 +73,14 @@ class UserFollowersView(APIView):
                         # Create a new post
                         follower_request_serializer.save()
 
-                        return Response({"code":204, "status":True, "msg":"You followed this user.", "data":True})
+                        return Response({"code":204, "status":True, "msg":"Your request for following user has been sent.", "data":True})
        
         except Exception as e:
             return Response({"code":500, "status":False, "msg":"Internal Server Error.", "error":e})
 
 # Followers request
 class UserFollowerRequestView(APIView):
+    # User sent followed request or not
     def get(self, request, formate=None):
         # Get current user id
         current_user = RefreshToken(request.COOKIES.get("refresh_token"))
@@ -100,9 +101,13 @@ class UserFollowerRequestView(APIView):
         # First time do not found any entry that's time genereate exception
         except UserFollowerRequestModel.DoesNotExist:
             return Response({"code":403, "status":True, "msg":"The user didn't sent you a follow request.", "data":False})
+        
+        except Exception as e:
+                return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":e})
 
 # Block users
 class UserBlockedView(APIView):
+    # Get records about user block or not
     def get(self, request, formate=None):
         # Get current user id
         current_user = RefreshToken(request.COOKIES.get("refresh_token"))
@@ -127,7 +132,7 @@ class UserBlockedView(APIView):
         except Exception as e:
             return Response({"code":500, "status":False, "msg":"Internal Server Error.", "error":e})
         
-    # User block
+    # Block or Unblock User
     def delete(self, request, formate=None):
         # Get current user id
         current_user = RefreshToken(request.COOKIES.get("refresh_token"))
@@ -162,24 +167,93 @@ class UserBlockedView(APIView):
         except Exception as e:
             return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":e})
 
-# Get all current user's friend requests
-def friend_request(request):
+# Friend request and accept block
+class UserFriendRequestView(APIView):
+    # Get all current user's friend requests
+    def get(self, request, formate=None):
+            # Get current user id
+            current_user = GeneralFunction.decrypt(request.GET.get("id"))
+
+            try:
+                # Get current user friend request
+                friends_request = UserFollowerRequestModel.objects.filter(receiver_id=current_user).select_related("sender")
+                
+                # If no records found to related to current user
+                if not friends_request:
+                    return JsonResponse({"code":404, "status":False, "msg":"No user found.", "errors":""})
+                
+                # serialize the data
+                friends_request_serializer = FriendRequestWithUserDetailsSerialization(friends_request, many=True)
+
+                return JsonResponse({"code":200, "status":True, "msg":"All records found related to current user.", "data":friends_request_serializer.data})
+
+            # First time do not found any entry that's time genereate exception
+            except UserFollowerRequestModel.DoesNotExist:
+                return JsonResponse({"code":403, "status":True, "msg":"The user didn't sent you a follow request.", "data":False})
+
+    # User friend request accept function
+    def post(self, request, formate=None):
         # Get current user id
-        current_user = GeneralFunction.decrypt(request.GET.get("id"))
+        current_user = RefreshToken(request.COOKIES.get("refresh_token"))
+
+        # Get profile id
+        profile_id = request.data.get("id")
 
         try:
-            # Get current user friend request
-            friends_request = UserFollowerRequestModel.objects.filter(receiver_id=current_user).select_related("sender")
-            
-            # If no records found to related to current user
-            if not friends_request:
-                return JsonResponse({"code":404, "status":False, "msg":"No user found.", "errors":""})
-            
-            # serialize the data
-            friends_request_serializer = FriendRequestWithUserDetailsSerialization(friends_request, many=True)
+            # Let's find user a friend request
+            friend_request = UserFollowerRequestModel.objects.filter(sender_id=profile_id, receiver_id=current_user["user_id"]).first()
 
-            return JsonResponse({"code":200, "status":True, "msg":"All records found related to current user.", "data":friends_request_serializer.data})
+            # User have a friend request it will be delete.
+            if friend_request:
+                delete_result, delete_object = UserFollowerRequestModel.objects.filter(id=friend_request.id).delete()
 
-        # First time do not found any entry that's time genereate exception
-        except UserFollowerRequestModel.DoesNotExist:
-            return JsonResponse({"code":403, "status":True, "msg":"The user didn't sent you a follow request.", "data":False})
+                if delete_result > 0:
+                    # If we accept the request the user will be follow us
+                    data = {
+                        "follower":profile_id, 
+                        "following":current_user["user_id"]
+                    }
+
+                    # Create serializer for following user
+                    accept_serializing = FollowersSerializers(data=data)
+
+                    # Validate data for empty or wrong value
+                    if accept_serializing.is_valid():
+                        # Create a new post
+                        accept_serializing.save()
+                        return Response({"code":204, "status":True, "msg":"You accepted this user request.", "data":True})
+                    else:                        
+                        return Response({"code":204, "status":False, "msg":"Data doesn't insert.", "data":False})
+                else:
+                    return Response({"code":400, "status":False, "msg":"Something went wrong.", "error":"Record not deleted."})
+            else:
+                return Response({"code":404, "status":False, "msg":"No data found.", "error":""})
+
+        except Exception as e:
+            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":e})
+        
+    # User friend request delete function
+    def delete(self, request, formate=None):
+        # Get current user id
+        current_user = RefreshToken(request.COOKIES.get("refresh_token"))
+
+        # Get profile id
+        profile_id = request.data.get("id")
+
+        try:
+            # Let's find user a friend request
+            friend_request = UserFollowerRequestModel.objects.filter(sender_id=profile_id, receiver_id=current_user["user_id"]).first()
+
+            # User have a friend request it will be delete.
+            if friend_request:
+                delete_result, delete_object = UserFollowerRequestModel.objects.filter(id=friend_request.id).delete()
+                
+                if delete_result > 0:
+                    return Response({"code":200, "status":True, "msg":"You didn't accept this user request.", "data":True})
+                else:
+                    return Response({"code":400, "status":False, "msg":"Something went wrong.", "data":False})
+            else:
+                return Response({"code":404, "status":False, "msg":"No data found.", "error":""})
+
+        except Exception as e:
+            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":e})

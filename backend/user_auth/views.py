@@ -186,6 +186,7 @@ class UserAuthentication(APIView):
 
     # Change password
     def put(self, request, format=None):
+        print(request.data)
         try:
             # Dcrypt the comming encrypted value
             user_id = GeneralFunction.decrypt(request.data.get("id"))
@@ -224,7 +225,10 @@ def user_details(request):
         if not user:
             return JsonResponse({"code":404, "status":False, "msg":"User doesn't exists.", "errors": ''})
         
-        return JsonResponse({"code":200, "status":True, "msg":"Change your username and password", "data":user.username})
+        # Serialize the data
+        user_serialization = UserSerializer(user)
+
+        return JsonResponse({"code":200, "status":True, "msg":"Change your username and password", "data":user_serialization.data})
     
     except Exception as e:
         return JsonResponse({"code":404, "status":False, "msg":"The OTP you entered is incorrect", "errors": e})

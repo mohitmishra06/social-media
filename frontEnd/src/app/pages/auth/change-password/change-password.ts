@@ -33,7 +33,7 @@ export class ChangePasswordComponent implements OnInit {
       // next() method will be executed only when there will be no error.
       next :(response:any) => {
         if(response.status === true){
-          this.username = response.data;
+          this.username = response.data.username;
           return;
         }
       }

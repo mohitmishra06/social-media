@@ -20,3 +20,27 @@ export interface User{
     block:boolean,
     created_at:Date,
 }
+
+export interface UpdatePersonalDetails{
+    name:string,
+    surname:string,
+    email:string,
+    desc:string,
+    city:string,
+    school:string,
+    work:string,
+    website:string,
+}
+
+export interface ChangePasswordDetails{
+    username:any,
+    password:any
+}
+
+export interface updateProfilePicture{
+    img:any
+}
+
+export interface updateBannerImage{
+    banner:any
+}

@@ -8,7 +8,7 @@
         <div class="border-t-1 border-gray-200 mt-4"></div>
     </div>
     <!-- Bottom -->
-     <div class="">
+     <div class="" *ngIf="!requestStatus">
         <div class="flex flex-col gap-2 my-6" *ngFor="let friend of allFriendRequests">
             <div class="flex items-center gap-3">
                 <img src="{{ url + friend.sender.img }}" alt="profile" class="rounded-full w-10 h-10"/>
@@ -20,11 +20,11 @@
                 </div>
             </div>
             <div class="flex-1 flex gap-2 mt-2">
-                <div class="flex flex-1 items-center justify-center h-8 btn-bg-gradient-success rounded-lg shadow-lg cursor-pointer">
-                    <button class="outline-none text-[var(--white)]">Confirm</button>
+                <div class="flex flex-1 items-center justify-center h-8 btn-bg-gradient-success rounded-lg shadow-lg cursor-pointer" (click)="acceptFriendRequest(friend.sender.id)">
+                    <button class="outline-none text-[var(--white)] cursor-pointer">Confirm</button>
                 </div>
-                <div class="flex flex-1 items-center justify-center h-8 bg-[#eee] rounded-lg shadow-lg cursor-pointer">
-                    <button class="outline-none text-[var(--black)]">Delete</button>
+                <div class="flex flex-1 items-center justify-center h-8 bg-[#eee] rounded-lg shadow-lg cursor-pointer" (click)="declineFriendRequest(friend.sender.id)">
+                    <button class="outline-none text-[var(--black)] cursor-pointer">Delete</button>
                 </div>
             </div>
         </div>

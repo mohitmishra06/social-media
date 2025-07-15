@@ -4,10 +4,11 @@ import { ApiCallingService } from '../../../services/api/api-calling.service';
 import { ActivatedRoute } from '@angular/router';
 import { Toastr } from '../../../services/toastr/toastr';
 import { UserDataStore } from '../../../services/userData/user-data-store';
+import { UpdateUser } from "../update-user/update-user";
 
 @Component({
   selector: 'app-user-information-card',
-  imports: [CommonModule],
+  imports: [CommonModule, UpdateUser],
   templateUrl: './user-information-card.html',
   styleUrl: './user-information-card.css'
 })
@@ -28,7 +29,7 @@ export class UserInformationCard implements OnInit{
 
   ngOnInit(): void {
     // Current user id
-    this._userData.glbUserData.subscribe(val => this.currentUser = val.user);
+    this._userData.glbUserData.subscribe(val => { this.currentUser = val.user, this.userId = val.userId });
 
     // Call block user function
     this.followers(this.user.id);
