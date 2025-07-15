@@ -6,7 +6,8 @@ import { Toastr } from '../../../services/toastr/toastr';
 import { environment } from '../../../../environments/environment.development';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCamera, faClose, faPen } from '@fortawesome/free-solid-svg-icons';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-update-user',
@@ -26,16 +27,33 @@ export class UpdateUser implements OnInit{
 
   constructor(
     private _apiCall:ApiCallingService,
-    private _tostr:Toastr
+    private _tostr:Toastr,
+    private _fb:FormBuilder,
+    private _router:Router
   ){}
 
   ngOnInit(): void {
-    // If user id comes getUserdetails function will call.
-    if (this.currentuser) {
-      this.getUserDetails(this.currentuser);
+    this.loadUser();  // Call this instead of doing logic inline    
+  }
+
+  // This function call for get user data.
+  loadUser(): void {
+  if (this.currentuser) {
+      this.getUserDetails(this.currentuser);  // Your existing function
     } else {
       console.warn('User is undefined');
-    }    
+    }
+  }
+
+  // Refresh the page after updating any component with the data
+  refreshCurrentRoute() {
+    // Get current url path
+    const currentUrl = this._router.url;
+
+    // Navigate to current user with lication change skip
+    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this._router.navigate([currentUrl]);
+    });
   }
   
   // only email and number are allow
@@ -57,31 +75,32 @@ export class UpdateUser implements OnInit{
     this.isTabOpen = data; 
   }
 
-  // FUNCTION FOR UPDATION
+  // FUNCTIONS
   // Fetch current user details
   getUserDetails(id:User){
     this._apiCall.getApi("auth/user-details/", { "id":id }).subscribe({
       next: (response: any) => {
         if (response.status === true) {
           this.userDetails = response.data;
-          console.log(this.userDetails);
           // MAKE FORMS
           // Personal details
-          this.updateForm = new FormGroup({
-            name: new FormControl(this.userDetails.name, Validators.compose([Validators.required])),
-            surname: new FormControl(this.userDetails.surname, Validators.compose([Validators.required])),
-            email: new FormControl(this.userDetails.email, Validators.compose([Validators.required])),
-            school: new FormControl(this.userDetails.school, Validators.compose([Validators.required])),
-            work: new FormControl(this.userDetails.work, Validators.compose([Validators.required])),
-            website: new FormControl(this.userDetails.website, Validators.compose([Validators.required])),
-            city: new FormControl(this.userDetails.city, Validators.compose([Validators.required])),
-            desc: new FormControl(this.userDetails.desc, Validators.compose([Validators.required]))
+          this.updateForm = this._fb.group({
+            id: [this.userDetails.id],
+            name: [this.userDetails.name, Validators.compose([Validators.required])],
+            surname: [this.userDetails.surname, Validators.compose([Validators.required])],
+            email: [this.userDetails.email, Validators.compose([Validators.required])],
+            school: [this.userDetails.school, Validators.compose([Validators.required])],
+            work: [this.userDetails.work, Validators.compose([Validators.required])],
+            website: [this.userDetails.website, Validators.compose([Validators.required])],
+            city: [this.userDetails.city, Validators.compose([Validators.required])],
+            desc: [this.userDetails.description, Validators.compose([Validators.required])]
           }, {validators: this.emailOrNumberAllow});
 
           // Change password and Username
-          this.changePasswordForm = new FormGroup({
-            username: new FormControl(this.userDetails.username, Validators.compose([Validators.required])),
-            password: new FormControl(this.userDetails.password, Validators.compose([Validators.required, Validators.minLength(8)]))
+          this.changePasswordForm = this._fb.group({
+            id: [id],
+            username: [this.userDetails.username, Validators.compose([Validators.required])],
+            password: [this.userDetails.password, Validators.compose([Validators.required, Validators.minLength(8)])]
           }, {validators: this.emailOrNumberAllow});
         } else {
           this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.error])
@@ -94,8 +113,9 @@ export class UpdateUser implements OnInit{
   }
 
   // Personal details
-  updateDetails(){
+  updateProfile(){
     let updateData:UpdatePersonalDetails = {
+      id: this.updateForm.value.id!,
       name: this.updateForm.value.name!,
       surname: this.updateForm.value.surname!,
       email: this.updateForm.value.email!,
@@ -106,20 +126,15 @@ export class UpdateUser implements OnInit{
       desc: this.updateForm.value.desc!,
     }
 
-    let data = {
-      id:this.currentuser,
-      personal:updateData
-    }
-
-    this._apiCall.getApi("auth/user-details/", data).subscribe({
+    this._apiCall.putApi("auth/profile/", updateData).subscribe({
       next: (response: any) => {
-        if (response.status === true) {        
-          this.userDetails = response.data;
-          console.log(this.userDetails);
-          
+        if (response.status === true) {
           // Maybe redirect or show an alert
+          this._tostr.toasterStatus(["text-[var(--btn-success)]", response.msg])
         } else {
-          this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.error])
+          console.log(response.errors);
+          
+          this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.msg])
         }
       },
       error: (err) => {
@@ -131,24 +146,40 @@ export class UpdateUser implements OnInit{
   // Password and Username change
   changePassword(){
     let changePassword:ChangePasswordDetails = {
+      id: this.changePasswordForm.value.id!,      
       username: this.changePasswordForm.value.username!,
       password: this.changePasswordForm.value.password!,
     }
 
-    let data = {
-      id:this.currentuser,
-      credentials:changePassword
-    }
-
-    this._apiCall.getApi("auth/change-password/", data).subscribe({
+    this._apiCall.putApi("auth/change-password/", changePassword).subscribe({
       next: (response: any) => {
-        if (response.status === true) {        
-          this.userDetails = response.data;
-          console.log(this.userDetails);
-          
+        if (response.status === true) {
           // Maybe redirect or show an alert
+          this._tostr.toasterStatus(["text-[var(--btn-success)]", response.msg])
         } else {
-          this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.error])
+          this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.msg])
+        }
+      },
+      error: (err) => {
+        console.error("API call failed", err);
+      }
+    });
+  }
+
+  // Image uploader function 
+  uploader(formData:any){
+    this._apiCall.patchApi("auth/profile/", formData).subscribe({
+      next: (response: any) => {
+        if (response.status === true) {
+          // Update data after response
+          this.userDetails = response.data
+
+          // Maybe redirect or show an alert
+          this._tostr.toasterStatus(["text-[var(--btn-success)]", response.msg])
+        } else {
+          console.log(response.errors);
+          
+          this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.msg])
         }
       },
       error: (err) => {
@@ -158,18 +189,38 @@ export class UpdateUser implements OnInit{
   }
 
   // Banner images change
-  updateBanner(event: Event){
+  updateBanner(event: Event, id:any){
+    // For upload image using formdata() object.
+    let formData = new FormData();
+    // Get File data.
     const file = (event.target as HTMLInputElement)?.files?.[0];
+
+    // If file come, assign it to formData
     if (file) {
-      console.log('Profile image selected:', file);
+      formData.append('id', id);                        // Add user ID
+      formData.append('file', file);                    // Actual File object
+      formData.append('imeType', 'banner');             // Other metadata
     }
+
+    // Call image uploader function
+    this.uploader(formData)
   }
 
   // Profile image
-  updateUserImage(event: Event){
+  updateUserImage(event: Event, id:any){
+    // For upload image using formdata() object.
+    let formData = new FormData();
+    // Get File data.
     const file = (event.target as HTMLInputElement)?.files?.[0];
+
+    // If file come, assign it to formData
     if (file) {
-      console.log('Profile image selected:', file);
+      formData.append('id', id);                        // Add user ID
+      formData.append('file', file);                    // Actual File object
+      formData.append('imeType', 'profile');             // Other metadata
     }
+
+    // Call image uploader function
+    this.uploader(formData)
   }
 }

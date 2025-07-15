@@ -31,7 +31,7 @@ export class UserMediaCard implements OnInit{
   getAllPost(id:string){
     this._apiCall.getApi("posts/", { "id":id }).subscribe({
       next: (response: any) => {
-        if (response.status === true) {        
+        if (response.status === true) {
           this.posts = response.data;
           // Maybe redirect or show an alert
         } else {

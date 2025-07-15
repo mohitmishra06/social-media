@@ -49,14 +49,14 @@ export class Profile implements OnInit{
   // Get user data
   getUser(userId:any){
     // Call api for the user details
-    this._apiCall.getApi('auth/profile-details/', {"id":userId}).subscribe({
+    this._apiCall.getApi('auth/profile/', {"id":userId}).subscribe({
       // next() method will be executed only when there will be no error.
       next :(response:any) => {
         // On success.
         if(response.status === true){
             this.userData = response.data
             this.isBlocked = this.userData?.block;
-            this.blockedMessage = response.msg            
+            this.blockedMessage = response.msg
             return;
           }
           return;

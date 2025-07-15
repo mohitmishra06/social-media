@@ -27,4 +27,20 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs={
             "password":{"write_only":True}
         }
-    
+
+# Profile
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields=["id","name", "surname", "email", "school", "work", "website", "city", "description", "username", "img", "banner"]
+        extra_kwargs={
+            "password":{"write_only":True}
+        }
+
+
+
+
+
+
+
+

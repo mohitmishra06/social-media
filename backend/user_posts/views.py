@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
+from django.http import JsonResponse
 from rest_framework.response import Response
-from user_posts.serializers import PostSerializers
+from user_posts.serializers import PostSerializers, AllPostWithRelatedData
 from user_posts.models import UserPostModels
 from linkup.general_function import GeneralFunction
 
@@ -14,7 +15,10 @@ class UserPostView(APIView):
             # Get all data
             start=0
             end=8
-            posts = UserPostModels.objects.filter(user_id=profile_id).order_by('-created_at')[start:end]
+
+            # Get the user posts
+            # This query does first it get the record accourding to id and then it filster this record to image is empty or null.
+            posts = UserPostModels.objects.filter(user_id=profile_id, post_img__isnull=False).exclude(post_img="").order_by('-created_at')[start:end]
             
             if not posts:
                 return Response({"code":400, "status":False, "msg":"Something went wrong", "errors":""})
@@ -136,3 +140,36 @@ class UserPostView(APIView):
             return Response({"code":500, "status":False, "msg":"Something went wrong", "errors":""})
   
 # Outside function which is call directly
+# Get user post with comment, like, userdetails
+def get_all_post_with_all_details(request):
+    try:
+        # Decrypt user id
+        profile_id = request.GET.get("id")
+        
+        # Get all data
+        start=0
+        end=8
+
+        posts = 0
+        if request.GET.get('id') is None:
+            posts = UserPostModels.objects.all().order_by('-created_at')[start:end]
+        else:
+            posts = UserPostModels.objects.select_related("user").prefetch_related(
+                            "post_comment",
+                            "post_like"
+                        )
+
+            print(posts[0].user.username)
+            print(posts[0].post_comment)
+            print(posts[0].post_like)
+
+        if not posts:
+            return JsonResponse({"code":404, "status":False, "msg":"Something went wrong", "errors":"Data not found."})
+        
+        # 🔥 Serialize the queryset
+        serialized_posts = AllPostWithRelatedData(posts, many=True)
+        print(serialized_posts)
+        return JsonResponse({"code":200, "status":True, "msg":"You have created a post.", "data":serialized_posts.data})
+        
+    except Exception as e:
+        return JsonResponse({"code":500, "status":False, "msg":"No post found", "errors":str(e)})

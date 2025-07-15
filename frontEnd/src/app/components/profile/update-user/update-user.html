@@ -1,6 +1,6 @@
 <div class="">
     <span class="text-sm cursor-pointer" (click)="setOpen()">Update</span>
-    <div *ngIf="isOpenModal" class="fixed w-screen h-screen top-0 left-0 bg-[#000000cf] flex items-center justify-center z-50">
+    <div *ngIf="isOpenModal" class="fixed w-screen h-screen top-0 left-0 bg-[#000000cf] flex items-center justify-center z-5">
         <div class="relative group bg-white rounded-lg shadow-md flex flex-col gap-2 w-full md:w-1/2 xl:w-1/2">
             <div class="flex flex-col">
                 <!-- Header -->
@@ -8,12 +8,12 @@
                 <div class="relative ">
                     <figure class="w-full shadow-xl">
                         <img src="{{ url + userDetails.banner }}" alt="banner-img" class="h-50 w-full object-cover rounded-lg">
-                        <input type="file" #bannerInput hidden (change)="updateBanner($event)">
+                        <input type="file" #bannerInput hidden (change)="updateBanner($event, userDetails.id)">
                         <div class="absolute right-3 top-14 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-800 flex items-center justify-center w-10 h-10 rounded-full bg-[#ffffff75]  cursor-pointer" (click)="bannerInput.click()"><fa-icon [icon]="icon.faPen" class="text-black text-xl"/></div>
                     </figure>
                     <figure class="absolute bottom-[-3rem] left-[50%] sm:left-[50%] md:left-3 ring-3 ring-white rounded-full  shadow-xl">
                         <img src="{{ url + userDetails.img }}" alt="user-img" class="relative object-cover rounded-full w-20 h-20">
-                        <input type="file" #profileImageInput hidden (change)="updateUserImage($event)">
+                        <input type="file" #profileImageInput hidden (change)="updateUserImage($event, userDetails.id)">
                         <div class="absolute top-0 left-0 bg-[#000000a3] h-full w-full rounded-full flex items-center justify-center z-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-800 cursor-pointer"><fa-icon [icon]="icon.faCamera" class="text-white text-2xl" (click)="profileImageInput.click()" /></div>
                     </figure>
                 </div>
@@ -44,6 +44,7 @@
                                 <div class="flex sm:block md:flex gap-2">
                                     <div class="w-full mt-0 sm:mt-2 md:mt-0">
                                         <div class="border-b-2 border-gray-200 rounded-xl">
+                                            <input type="hidden" required formControlName="id">
                                             <input type="text" required formControlName="name" class="w-full text-base text-gray-400 transparent border-none outline-none p-2" placeholder="Name">
                                         </div>
                                          <span *ngIf="updateForm.controls.name.errors && updateForm.controls.name.touched" class=" tooltip">
@@ -116,7 +117,7 @@
                                     </div>
                                 </div>
 
-                                <div class="flex flex-col gap-1">
+                                <div class="flex flex-col gap-1" (click)="updateProfile()">
                                     <button class="btn-bg-gradient-success text-white text-sm rounded-md p-2 cursor-pointer">Update</button>
                                 </div>
                             </form>
@@ -127,7 +128,8 @@
                             <div class="flex sm:block md:flex gap-2">
                                 <div class="w-full mt-0 sm:mt-2 md:mt-0">
                                     <div class="border-b-2 border-gray-200 rounded-xl">
-                                        <input type="text" required formControlName="username" [value]="userDetails.username" class="w-full text-base text-gray-400 transparent border-none outline-none p-2" placeholder="Username">
+                                        <input type="hidden" required formControlName="id">
+                                        <input type="text" required formControlName="username" class="w-full text-base text-gray-400 transparent border-none outline-none p-2" placeholder="Username">
                                     </div>
                                      <span *ngIf="changePasswordForm.controls.username.errors && changePasswordForm.controls.username.touched" class=" tooltip">
                                         <span class="text-[var(--btn-danger)]" *ngIf="changePasswordForm.controls.username.errors?.['required']">Username is required.</span>
@@ -144,7 +146,7 @@
                                 </div>
                             </div>
                             <div class="flex flex-col gap-1 mt-5" (click)="changePassword()">
-                                <button type="button" class="btn-bg-gradient-success text-white text-sm rounded-md p-2 cursor-pointer">Update</button>
+                                <button type="submit" class="btn-bg-gradient-success text-white text-sm rounded-md p-2 cursor-pointer">Update</button>
                             </div>
                         </form>
                        </div>

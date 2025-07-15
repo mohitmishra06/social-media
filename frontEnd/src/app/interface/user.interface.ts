@@ -22,6 +22,7 @@ export interface User{
 }
 
 export interface UpdatePersonalDetails{
+    id:string,
     name:string,
     surname:string,
     email:string,
@@ -33,14 +34,17 @@ export interface UpdatePersonalDetails{
 }
 
 export interface ChangePasswordDetails{
+    id:string,
     username:any,
     password:any
 }
 
 export interface updateProfilePicture{
+    id:string,
     img:any
 }
 
 export interface updateBannerImage{
+    id:string,
     banner:any
 }

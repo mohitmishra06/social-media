@@ -5,4 +5,4 @@ from user_comments.models import UserCommentModels
 class CommentSerializers(serializers.ModelSerializer):
     class Meta:
         model = UserCommentModels
-        fields = ["comment", "deleted_at"]
+        fields = ["id", "comment", "deleted_at"]

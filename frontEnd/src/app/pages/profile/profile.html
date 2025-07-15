@@ -85,9 +85,9 @@
             <!-- If your is blocked so that content not be show. -->
             <div>
                 <div *ngIf="!isBlocked">
-                    <app-feed/>
+                    <app-feed [userId]="userData?.id"/>
                 </div>
-                <p *ngIf="isBlocked" class="w-full text-center text-lg text-gray-400 font-medium">{{blockedMessage}}.</p>
+                <p *ngIf="isBlocked" class="w-full text-center text-lg text-gray-400 font-medium">{{ blockedMessage }}.</p>
             </div>
         </div>
     </div>

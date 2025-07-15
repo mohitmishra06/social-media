@@ -14,7 +14,7 @@ from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
 # Developer models and serializer
-from user_auth.serializers import UserRegisterSerializer, UserPWDChangeSerializer, UserSerializer
+from user_auth.serializers import UserRegisterSerializer, UserPWDChangeSerializer, UserSerializer, UserProfileSerializer
 from user_auth.models import User
 from user_followers.models import UserFollowerModel, UserBlockModel
 from user_posts.models import UserPostModels
@@ -186,7 +186,6 @@ class UserAuthentication(APIView):
 
     # Change password
     def put(self, request, format=None):
-        print(request.data)
         try:
             # Dcrypt the comming encrypted value
             user_id = GeneralFunction.decrypt(request.data.get("id"))
@@ -229,64 +228,6 @@ def user_details(request):
         user_serialization = UserSerializer(user)
 
         return JsonResponse({"code":200, "status":True, "msg":"Change your username and password", "data":user_serialization.data})
-    
-    except Exception as e:
-        return JsonResponse({"code":404, "status":False, "msg":"The OTP you entered is incorrect", "errors": e})
-
-# Get profile data using id
-def profile_details(request):
-
-    try:
-        # Get current user id
-        token = RefreshToken(request.COOKIES.get("refresh_token"))
-
-        # Dcrypt the comming encrypted value
-        user_id = GeneralFunction.decrypt(request.GET.get("id"))
-
-        # Get user
-        user = User.objects.filter(id=user_id).first()
-
-        # Let's find user is block or not
-        blocked_user = UserBlockModel.objects.filter(blocker_id=user_id, blocked_id=token["user_id"]).first()
-
-        # If user is blocked data will not come
-        if blocked_user:         
-            user = {
-                "id":user.id,
-                "banner":user.banner,
-                "img":user.img,
-                "username":user.username,
-                "email":user.email,
-            }
-            serializer = UserSerializer(user)
-            serialized_data = serializer.data
-            serialized_data["block"] = True  # Add custom field here
-            return JsonResponse({"code":403, "status":True, "msg":"You can't see this profile because the user blocked you", "data":serialized_data})
-   
-        # Get currint user followers
-        followers = UserFollowerModel.objects.filter(follower_id = user_id).count()
-
-        # Get currint user Following
-        following = UserFollowerModel.objects.filter(following_id = user_id).count()
-
-        # Get currint user posts
-        posts = UserPostModels.objects.filter(user_id=user_id).count()
-
-        # Serialize the user
-        user_data = UserSerializer(user).data
-
-        # Append additional data
-        user_data.update({
-            "followers": followers,
-            "following": following,
-            "posts": posts,
-        })
-
-
-        if not user:
-            return JsonResponse({"code":404, "status":False, "msg":"User doesn't exists.", "errors": ''})
-        
-        return JsonResponse({"code":200, "status":True, "msg":"Change your username and password", "data":user_data})
     
     except Exception as e:
         return JsonResponse({"code":404, "status":False, "msg":"The OTP you entered is incorrect", "errors": e})
@@ -400,3 +341,128 @@ class UserTokenValidation(APIView):
         
         # User is not available
         return Response({"code":401, "status":False, "msg":"Refresh token invalid.", "data":False})
+    
+class ProfileUpdateView(APIView):
+    # Get profile data using id
+    def get(self, request, formate=None):
+        try:
+            # Get current user id
+            token = RefreshToken(request.COOKIES.get("refresh_token"))
+
+            # Dcrypt the comming encrypted value
+            user_id = GeneralFunction.decrypt(request.GET.get("id"))
+
+            # Get user
+            user = User.objects.filter(id=user_id).first()
+
+            # Let's find user is block or not
+            blocked_user = UserBlockModel.objects.filter(blocker_id=user_id, blocked_id=token["user_id"]).first()
+
+            # If user is blocked data will not come
+            if blocked_user:         
+                user = {
+                    "id":user.id,
+                    "banner":user.banner,
+                    "img":user.img,
+                    "username":user.username,
+                    "email":user.email,
+                }
+                serializer = UserSerializer(user)
+                serialized_data = serializer.data
+                serialized_data["block"] = True  # Add custom field here
+                return Response({"code":403, "status":True, "msg":"You can't see this profile because the user blocked you", "data":serialized_data})
+    
+            # Get currint user followers
+            followers = UserFollowerModel.objects.filter(follower_id = user_id).count()
+
+            # Get currint user Following
+            following = UserFollowerModel.objects.filter(following_id = user_id).count()
+
+            # Get currint user posts
+            posts = UserPostModels.objects.filter(user_id=user_id).count()
+
+            # Serialize the user
+            user_data = UserSerializer(user).data
+
+            # Append additional data
+            user_data.update({
+                "followers": followers,
+                "following": following,
+                "posts": posts,
+            })
+
+
+            if not user:
+                return Response({"code":404, "status":False, "msg":"User doesn't exists.", "errors": ''})
+            
+            return Response({"code":200, "status":True, "msg":"Change your username and password", "data":user_data})
+        
+        except Exception as e:
+            return Response({"code":404, "status":False, "msg":"The OTP you entered is incorrect", "errors": e})
+    
+    # Update profile details
+    def put(self, request, formate=None):
+        try:
+            # Validate user exits or not
+            user = User.objects.get(id=request.data.get("id"))
+
+            # Update username and password
+            data = {
+                "name":request.data.get("name"),
+                "surname":request.data.get("surname"),
+                "email":request.data.get("email"),
+                "school":request.data.get("school"),
+                "work":request.data.get("work"),
+                "website":request.data.get("website"),
+                "city":request.data.get("city"),
+                "description":request.data.get("desc"),
+            }
+
+            # This line sent data to serialization.
+            serializer = UserProfileSerializer(user, data=data, partial=True)
+
+            # Validate data for empty or wrong value
+            if serializer.is_valid():
+                # Create a new user
+                save_data = serializer.save()
+                
+                # Reserialize data after user update
+                serializer = UserProfileSerializer(save_data)
+
+                return Response({"code":200, "status":True, "msg":"Your profile detials updated.", "data":serializer.data})
+            
+            return Response({"code":400, "status":False, "msg":"Something went wrong", "errors":serializer.errors})
+        except Exception as e:
+            return Response({"code":500, "status":False, "msg":"Internal Server Error", "errors":str(e)})
+        
+    # Update image
+    def patch(self, request, formate=None):
+        user_id = request.POST.get('id')             # From FormData field
+        ime_type = request.POST.get('imeType')       # From FormData field
+        file = request.FILES.get('file')             # File from FormData
+        try:
+            # Validate user exits or not
+            user = User.objects.get(id=user_id)
+
+            # Upload img
+            if ime_type == "profile":
+                data = { "img":file }
+            else:
+                data = { "banner":file }
+
+            # This line sent data to serialization.
+            serializer = UserProfileSerializer(user, data=data, partial=True)
+
+            # Validate data for empty or wrong value
+            if serializer.is_valid():
+                # Create a new user
+                upload_file = serializer.save()
+                
+                # Reserialize data after user update
+                serializer = UserProfileSerializer(upload_file)
+
+                return Response({"code":200, "status":True, "msg":"File uploaded successfully.", "data":serializer.data})
+            
+            return Response({"code":400, "status":False, "msg":"Some fields are messing", "errors":serializer.errors})
+        except Exception as e:
+            return Response({"code":500, "status":False, "msg":"Internal Server Error", "errors":str(e)})

@@ -4,4 +4,4 @@ from user_likes.models import UserLikeModels
 class LikesSerializers(serializers.ModelSerializer):
     class Meta:
         model = UserLikeModels
-        fields = ["user", "post", "comment", "deleted_at"]
+        fields = ["id", "user", "post", "comment", "deleted_at"]
