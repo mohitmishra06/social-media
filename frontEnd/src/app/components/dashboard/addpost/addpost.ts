@@ -17,12 +17,17 @@ import { UserDataStore } from '../../../services/userData/user-data-store';
 export class Addpost implements OnInit {
   errorMessage:string = '';
   userId:string =''
+  currentUserImg?:string;
+
   icon = { faPenFancy, faVideoCamera, faImage, faCamera, faPlay}
 
   constructor(private _apiCall:ApiCallingService, private _tostr:Toastr, private _userData:UserDataStore){}
 
   ngOnInit(): void {
-    this._userData.glbUserData.subscribe(val => this.userId = val.userId)
+    this._userData.glbUserData.subscribe(val => {
+      this.userId = val.userId;
+      this.currentUserImg = val.userImg
+    })
   }
 
   creatPost(postForm:NgForm){// Creating data for comparison.
@@ -40,7 +45,7 @@ export class Addpost implements OnInit {
             this._tostr .toasterStatus(['text-red', response.msg]);
             return;
           }
-          this._tostr.toasterStatus(['text-gray-600', response.msg]);
+          this._tostr.toasterStatus(['text-gray-500', response.msg]);
           return;
       }
     });   

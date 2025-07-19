@@ -1,6 +1,10 @@
 from rest_framework import  serializers
 from user_followers.models import UserFollowerModel, UserFollowerRequestModel, UserBlockModel
 from user_auth.models import User
+from user_auth.serializers import UserSerializer
+from user_comments.serializers import CommentSerializers
+from user_likes.serializers import LikesSerializers
+from user_posts.serializers import PostSerializers
 
 class FollowersSerializers(serializers.ModelSerializer):
     class Meta:
@@ -35,3 +39,13 @@ class FriendRequestWithUserDetailsSerialization(serializers.ModelSerializer):
     class Meta:
         model = UserFollowerRequestModel
         fields = ["sender", "receiver", "deleted_at"]
+
+class FollowingUserPostWithRelatedDataSerializer(serializers.ModelSerializer):
+    following = UserSerializer()  # ✅ show full user data
+    user_post = PostSerializers(many=True, source="following.user_post")
+    user_comment = CommentSerializers(many=True, source="following.user_comment")
+    user_like = LikesSerializers(many=True, source="following.user_like")  # use correct related_name
+
+    class Meta:
+        model = UserFollowerModel
+        fields = ["id", "following", "user_post", "user_comment", "user_like"]

@@ -40,7 +40,7 @@ export default class NavbarComponent implements OnInit {
       next :(response:any) => {
         // On success.
         if(response.status === false){
-            this._tostr.toasterStatus(['text-[var(--dark-pink)]', response.msg]);
+            this._tostr.toasterStatus(['text-gray-500', response.msg]);
             return;
           }
           this._tostr.toasterStatus(['text-gray-600', response.msg]);

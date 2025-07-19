@@ -1,0 +1,29 @@
+<div class="flex items-center justify-between text-sm my-4">
+        <div class="flex gap-8">
+            <div class="flex items-center gap-4 bg-[var(--text-lighter)] p-2 rounded-xl">
+                <fa-icon (click)="postLike(currentUser, postId)" [icon]="icon.faThumbsUp" class="text-sm cursor-pointer {{ isUserLike ? 'text-[var(--secondary)]' : 'text-gray-400'}}"/>
+                <span class="text-gray-300">|</span>
+                <span class="text-gray-500">
+                    {{ userLikes?.length }}
+                    <span class="hidden md:inline"> Likes</span>
+                </span>
+            </div>
+            <div class="flex items-center gap-4 bg-[var(--text-lighter)] p-2 rounded-xl">
+                <fa-icon [icon]="icon.faComment" class="text-sm cursor-pointer {{ isUserComment ? 'text-[var(--secondary)]' : 'text-gray-400'}}"/>
+                <span class="text-gray-300">|</span>
+                <span class="text-gray-500">
+                    {{ userComments?.length }}
+                    <span class="hidden md:inline"> Comments</span>
+                </span>
+            </div>
+        </div>
+        <div class="">
+            <div class="flex items-center gap-4 bg-slate-100 p-2 rounded-xl">
+                <fa-icon [icon]="icon.faShare" class="text-sm text-[var(--secondary)]"/>
+                <span class="text-gray-300">|</span>
+                <span class="text-gray-500">
+                    <span class="hidden md:inline"> Share</span>
+                </span>
+            </div>
+        </div>
+    </div>

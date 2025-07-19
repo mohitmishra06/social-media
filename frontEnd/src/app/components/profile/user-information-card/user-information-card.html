@@ -11,7 +11,7 @@
                     Show the update user component if user.id equals currentUser 
                     and send encrypted user id to the update component.
                  -->
-                <app-update-user *ngIf="user?.id === currentUser" [currentuser]="userId"/>
+                <app-update-user #update *ngIf="user?.id === currentUser" [currentuser]="userId"/>
 
             </span>
         </div>

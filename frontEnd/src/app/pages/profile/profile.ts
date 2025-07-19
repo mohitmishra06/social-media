@@ -10,6 +10,7 @@ import { ApiCallingService } from '../../services/api/api-calling.service';
 import { environment } from '../../../environments/environment.development';
 import { CommonModule } from '@angular/common';
 import { User } from '../../interface/user.interface';
+import { Toastr } from '../../services/toastr/toastr';
 
 @Component({
   selector: 'app-profile',
@@ -30,6 +31,7 @@ export class Profile implements OnInit{
     private _userData:UserDataStore,
     private _route:ActivatedRoute,
     private _apiCall:ApiCallingService,
+    private _tostr:Toastr
   ){}
 
   ngOnInit(): void {
@@ -51,16 +53,17 @@ export class Profile implements OnInit{
     // Call api for the user details
     this._apiCall.getApi('auth/profile/', {"id":userId}).subscribe({
       // next() method will be executed only when there will be no error.
-      next :(response:any) => {
-        // On success.
-        if(response.status === true){
-            this.userData = response.data
-            this.isBlocked = this.userData?.block;
-            this.blockedMessage = response.msg
-            return;
-          }
-          return;
+      next: (response: any) => {
+        if (response.status === true) {
+          this.userData = response.data;0          
+          // Maybe redirect or show an alert
+        } else {
+          this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.error])
         }
+      },
+      error: (err) => {
+        console.error("API call failed", err);
+      }
     });
   }
 }

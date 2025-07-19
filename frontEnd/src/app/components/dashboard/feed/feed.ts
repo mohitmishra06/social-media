@@ -1,26 +1,39 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { Post } from "../post/post";
 import { User } from '../../../interface/user.interface';
 import { ApiCallingService } from '../../../services/api/api-calling.service';
 import { Toastr } from '../../../services/toastr/toastr';
+import { CommonModule } from '@angular/common';
+import { UserDataStore } from '../../../services/userData/user-data-store';
 
 @Component({
   selector: 'app-feed',
-  imports: [Post],
+  imports: [Post, CommonModule],
   templateUrl: './feed.html',
   styleUrl: './feed.css'
 })
-export class Feed implements OnChanges{
+export class Feed implements OnInit, OnChanges{
   @Input() userId?:any;
   userPosts:any;
+  followingUserPost:any;
+  currentUser?:number;
 
   constructor(
     private _apiCall:ApiCallingService,
     private _tostr:Toastr,
+    private _userData:UserDataStore
   ){}
 
+  ngOnInit(): void {
+    // Get current user
+    this._userData.glbUserData.subscribe(val => { 
+      this.currentUser = val.user
+      this.userId ? '' : this.getFollowers(this.currentUser)
+    } );
+  }
+
   // This life cycle hook run after that the parent ngOnInit method runs
-  ngOnChanges(): void {
+  ngOnChanges(): void {    
     this.loadUser();  // Call this instead of doing logic inline
   }
 
@@ -28,8 +41,10 @@ export class Feed implements OnChanges{
   loadUser(): void {
     if (this.userId) {
       this.getUserDetails(this.userId);  // Your existing function
+      this.getFollowers(this.userId);
     } else {
-      console.warn('User is not come');
+    // Call function
+      console.log('User is not come');
     }
   }
 
@@ -40,12 +55,27 @@ export class Feed implements OnChanges{
       next: (response: any) => {
         if (response.status === true) {
           this.userPosts = response.data;
-          console.log(this.userPosts);
-          
         } else {
-          console.log(response.errors);
-          
           this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.errors])
+        }
+      },
+      error: (err) => {
+        console.error("API call failed", err);
+      }
+    });
+  }
+
+  // Get user following data
+  getFollowers(userId:any){
+    // Call api for the user details
+    this._apiCall.getApi('users/get-all-followers/', {"id":userId}).subscribe({
+      // next() method will be executed only when there will be no error.
+      next: (response: any) => {
+        if (response.status === true) {
+          this.followingUserPost = response.data;          
+          // Maybe redirect or show an alert
+        } else {
+          this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.msg])
         }
       },
       error: (err) => {

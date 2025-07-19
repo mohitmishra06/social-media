@@ -9,20 +9,33 @@ class UserLikesView(APIView):
     def get(self, request, format=None):
         try:
             # Get all data
-            likes = UserLikeModels.objects.get(
-                post_id=request.data.get("postId"),
-                user_id=request.data.get("userId")
-            )
-            
-            if not likes:
-                return Response({"code":400, "status":False, "msg":"Something went wrong", "errors":""})
-            
-            # 🔥 Serialize the queryset, when data comes in multiple
-            serialized_likes = LikesSerializers(likes, many=True)
-            return Response({"code":200, "status":True, "msg":"All likes.", "data":serialized_likes.data})
-            
-        except UserLikeModels.DoesNotExist:
-            return Response({"code":500, "status":False, "msg":"No like found", "errors":""})
+
+            # Let's find user is follow or not
+            exists_like = UserLikeModels.objects.filter(user_id=request.GET.get("userId"), post_id=request.GET.get("postId")).first()
+
+            # If user follow him so it delete the row and unfollow the user
+            if exists_like:
+                delete_result = UserLikeModels.objects.filter(id=exists_like.id).delete()
+                return Response({"code":400, "status":True, "msg":"You were not like this post.", "data":False})
+            else:                
+                # Create a request for the current user follow him
+                data = {
+                    "user":request.GET.get("userId"), 
+                    "post":request.GET.get("postId")
+                }
+
+                # Create serilizer for saving data
+                serializer = LikesSerializers(data=data)
+
+                # Validate data for empty or wrong value
+                if serializer.is_valid():
+                    # Create a new post
+                    serializer.save()
+                    
+                    return Response({"code":204, "status":True, "msg":"You like this post.", "data":True})
+       
+        except Exception as e:
+            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "errors":str(e)})
     
     def put(self, request, format=None):
         try:

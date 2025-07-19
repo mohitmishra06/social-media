@@ -20,7 +20,7 @@
                 </div>
             </div>
             <div class="flex flex-col items-center gap-2">
-                <img src="./images/user-1.jpg" alt="noAvatar" class="w-6 h-6 rounded-full">
+                <img src="{{ currentUserImg }}" alt="noAvatar" class="w-6 h-6 rounded-full">
                 <img src="./images/emoji.png" alt="emoji" class="w-6 h-6 rounded-full cursor-pointer">
                 <button type="submit" (click)="creatPost(postForm)" *ngIf="post.valid"><img src="./images/send_btn.png" alt="emoji" class="w-7 h-7 rounded-full cursor-pointer"/></button>
             </div>

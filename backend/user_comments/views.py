@@ -1,24 +1,37 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from user_comments.models import UserCommentModels
-from user_comments.serializers import CommentSerializers
+from user_comments.serializers import CommentSerializers, PostsCommentsSerializers
 
 class UserCommentView(APIView):
     # Get all records
     def get(self, request, format=None):
         try:
-            # Get all data
-            comments = UserCommentModels.objects.filter(user_id=request.data.get("userId"), post_id=request.data.get("postId"))
+            post_id = request.GET.get("postId")
+
+            if not post_id:
+                return Response({"code":400, "status":False, "msg":"postId is required", "errors":""})
+
+            comments = UserCommentModels.objects.filter(post_id=post_id).select_related("post")
             
-            if not comments:
-                return Response({"code":400, "status":False, "msg":"Something went wrong", "errors":""})
-            
-            # 🔥 Serialize the queryset, when data comes in multiple
-            serialized_comments = CommentSerializers(comments, many=True)
-            return Response({"code":200, "status":True, "msg":"All comments related to this post.", "data":serialized_comments.data})
-            
-        except UserCommentModels.DoesNotExist:
-            return Response({"code":500, "status":False, "msg":"No comment found", "errors":""})
+            if not comments.exists():
+                return Response({"code":404, "status":False, "msg":"No data found", "errors":""})
+
+            serialized_comments = PostsCommentsSerializers(comments, many=True)
+            return Response({
+                "code":200,
+                "status":True,
+                "msg":"All comments related to this post.",
+                "data":serialized_comments.data
+            })
+
+        except Exception as e:
+            return Response({
+                "code":500,
+                "status":False,
+                "msg":"Internal Server Error",
+                "errors":str(e)
+            })
 
     # Add new comment
     def post(self, request, format=None):
@@ -26,7 +39,7 @@ class UserCommentView(APIView):
             data = {
                 "user":request.data.get("userId"),
                 "post":request.data.get("postId"),
-                "comment":request.data.get("comment")
+                "comment":request.data.get("desc")
             }
 
             # This line sent data to serialization.
@@ -41,7 +54,7 @@ class UserCommentView(APIView):
             
             return Response({"code":400, "status":False, "msg":"Something went wrong", "errors":serializer.errors})
         except Exception as e:
-            return Response({"code":500, "status":False, "msg":"Something went wrong", "errors":""})
+            return Response({"code":500, "status":False, "msg":"Something went wrong", "errors":str(e)})
 
     # Partial update comment
     def patch(self, request, format=None):

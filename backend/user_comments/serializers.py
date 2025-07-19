@@ -5,4 +5,15 @@ from user_comments.models import UserCommentModels
 class CommentSerializers(serializers.ModelSerializer):
     class Meta:
         model = UserCommentModels
-        fields = ["id", "comment", "deleted_at"]
+        fields = ["id", "user", "comment", "post", "deleted_at"]
+
+class PostsCommentsSerializers(serializers.ModelSerializer):
+    from user_auth.serializers import UserSerializer
+    from user_posts.serializers import PostSerializers
+
+    user = UserSerializer()
+    post = PostSerializers()
+    
+    class Meta:
+        model = UserCommentModels
+        fields = ["id", "user", "comment", "post", "deleted_at"]

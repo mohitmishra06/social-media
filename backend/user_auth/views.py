@@ -189,14 +189,14 @@ class UserAuthentication(APIView):
         try:
             # Dcrypt the comming encrypted value
             user_id = GeneralFunction.decrypt(request.data.get("id"))
-
+            
             # Validate user exits or not
             user = User.objects.get(id=user_id)
-
+            
             # Create data
             data = {
                 "username":request.data.get("username"),
-                "password":make_password(request.data.get("password")),
+                "password": user.password if request.data.get("password") is None else make_password(request.data.get("password")),
             }
 
             # Set data for the partial update
@@ -398,7 +398,7 @@ class ProfileUpdateView(APIView):
             return Response({"code":200, "status":True, "msg":"Change your username and password", "data":user_data})
         
         except Exception as e:
-            return Response({"code":404, "status":False, "msg":"The OTP you entered is incorrect", "errors": e})
+            return Response({"code":404, "status":False, "msg":"The OTP you entered is incorrect", "errors": str(e)})
     
     # Update profile details
     def put(self, request, formate=None):

@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from user_posts.serializers import PostSerializers, AllPostWithRelatedData
 from user_posts.models import UserPostModels
 from linkup.general_function import GeneralFunction
+# Count the number of rows in join query
+from django.db.models import Count
 
 class UserPostView(APIView):
     # Get all records
@@ -145,7 +147,7 @@ def get_all_post_with_all_details(request):
     try:
         # Decrypt user id
         profile_id = request.GET.get("id")
-        
+
         # Get all data
         start=0
         end=8
@@ -154,21 +156,26 @@ def get_all_post_with_all_details(request):
         if request.GET.get('id') is None:
             posts = UserPostModels.objects.all().order_by('-created_at')[start:end]
         else:
-            posts = UserPostModels.objects.select_related("user").prefetch_related(
-                            "post_comment",
-                            "post_like"
-                        )
+            # posts = UserPostModels.objects.select_related("user").prefetch_related(
+            #                 "post_comment",
+            #                 "post_like"
+            #             )
 
-            print(posts[0].user.username)
-            print(posts[0].post_comment)
-            print(posts[0].post_like)
+            # Get data with use_id, Join with post, user, comment and like table
+            posts = UserPostModels.objects.filter(user_id=profile_id).select_related("user").prefetch_related(
+                "post_comment",
+                "post_like"
+            ).annotate(
+                comment_count=Count("post_comment"),
+                like_count=Count("post_like")
+            ).order_by('-created_at')[start:end]
 
         if not posts:
             return JsonResponse({"code":404, "status":False, "msg":"Something went wrong", "errors":"Data not found."})
         
         # 🔥 Serialize the queryset
         serialized_posts = AllPostWithRelatedData(posts, many=True)
-        print(serialized_posts)
+        
         return JsonResponse({"code":200, "status":True, "msg":"You have created a post.", "data":serialized_posts.data})
         
     except Exception as e:

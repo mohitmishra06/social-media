@@ -2,8 +2,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import JsonResponse
 from user_followers.models import UserFollowerModel, UserFollowerRequestModel, UserBlockModel
-from user_followers.serializers import FollowersSerializers, FollowerRequestSerializers, FriendRequestWithUserDetailsSerialization, BlockSerializers
+from user_followers.serializers import FollowersSerializers, FollowerRequestSerializers, FriendRequestWithUserDetailsSerialization, BlockSerializers, FollowingUserPostWithRelatedDataSerializer
 from linkup.general_function import GeneralFunction
+# Count the number of rows in join query
+from django.db.models import Count, Prefetch
 
 # Import library for token
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -33,7 +35,7 @@ class UserFollowersView(APIView):
             return Response({"code":403, "status":True, "msg":"The user didn't follow you.", "data":False})
     
         except Exception as e:
-                return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":e})
+                return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":str(e)})
 
     # User follow request
     def delete(self, request, formate=None):
@@ -76,7 +78,7 @@ class UserFollowersView(APIView):
                         return Response({"code":204, "status":True, "msg":"Your request for following user has been sent.", "data":True})
        
         except Exception as e:
-            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "error":e})
+            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "error":str(e)})
 
 # Followers request
 class UserFollowerRequestView(APIView):
@@ -103,7 +105,7 @@ class UserFollowerRequestView(APIView):
             return Response({"code":403, "status":True, "msg":"The user didn't sent you a follow request.", "data":False})
         
         except Exception as e:
-                return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":e})
+                return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":str(e)})
 
 # Block users
 class UserBlockedView(APIView):
@@ -130,7 +132,7 @@ class UserBlockedView(APIView):
             return Response({"code":403, "status":True, "msg":"The user didn't block you.", "data":False})
         
         except Exception as e:
-            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "error":e})
+            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "error":str(e)})
         
     # Block or Unblock User
     def delete(self, request, formate=None):
@@ -165,7 +167,7 @@ class UserBlockedView(APIView):
 
                     return Response({"code":204, "status":True, "msg":"You blocked this user.", "data":True})
         except Exception as e:
-            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":e})
+            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":str(e)})
 
 # Friend request and accept block
 class UserFriendRequestView(APIView):
@@ -230,7 +232,7 @@ class UserFriendRequestView(APIView):
                 return Response({"code":404, "status":False, "msg":"No data found.", "error":""})
 
         except Exception as e:
-            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":e})
+            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":str(e)})
         
     # User friend request delete function
     def delete(self, request, formate=None):
@@ -256,4 +258,39 @@ class UserFriendRequestView(APIView):
                 return Response({"code":404, "status":False, "msg":"No data found.", "error":""})
 
         except Exception as e:
-            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":e})
+            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":str(e)})
+        
+# Get user post with comment, like, userdetails
+def get_all_followers(request):
+    try:
+        # Get profile id
+        profile_id = request.GET.get("id")
+        try:
+            # Get all data
+            start=0
+            end=8
+
+            
+            followers = UserFollowerModel.objects.filter(following_id=profile_id).select_related("following").prefetch_related(
+                Prefetch("following__user_post"),
+                Prefetch("following__user_comment"),
+                Prefetch("following__user_like")
+            ).annotate(
+                comment_count=Count("following__user_comment", distinct=True),
+                like_count=Count("following__user_like", distinct=True)
+            ).order_by('-created_at')[start:end]
+            
+            # If user is follow data will not come
+            if not followers:
+                return JsonResponse({"code":404, "status":False, "msg":"The user didn't follow you.", "data":False})
+            
+            serialization =  FollowingUserPostWithRelatedDataSerializer(followers, many=True)
+            
+            return JsonResponse({"code":200, "status":True, "msg":"The user follow you.", "data":serialization.data})
+
+        # First time do not found any entry that's time genereate exception
+        except UserFollowerModel.DoesNotExist:
+            return JsonResponse({"code":404, "status":False, "msg":"The user didn't follow you.", "errors":False})
+    
+    except Exception as e:
+            return JsonResponse({"code":500, "status":False, "msg":"Internal Server Error.", "errors":str(e)})

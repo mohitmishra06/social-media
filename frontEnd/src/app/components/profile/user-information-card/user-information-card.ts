@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { afterEveryRender, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ApiCallingService } from '../../../services/api/api-calling.service';
 import { ActivatedRoute } from '@angular/router';
 import { Toastr } from '../../../services/toastr/toastr';
@@ -23,7 +23,6 @@ export class UserInformationCard implements OnInit{
   constructor(
     private _userData:UserDataStore,
     private _apiCall:ApiCallingService,
-    private _route:ActivatedRoute,
     private _tostr:Toastr
   ){}
 
@@ -34,7 +33,7 @@ export class UserInformationCard implements OnInit{
     // Call block user function
     this.followers(this.user.id);
     this.followerReqRes(this.user.id);
-    this.blocked(this.user.id);
+    this.blocked(this.user.id);    
   }
 
   // Get follower user details
@@ -130,9 +129,9 @@ export class UserInformationCard implements OnInit{
   blockUser(id:any){
     this._apiCall.deleteApi("users/blocked/", { "id":id }).subscribe({
       next: (response: any) => {
-        if (response.status === true) {        
+        if (response.status === true) {
           this.isUserBlocked = response.data;
-          this._tostr.toasterStatus(["text-[var(--btn-success)]", response.msg])
+          this._tostr.toasterStatus(["text-gray-500", response.msg])
           // Maybe redirect or show an alert
         } else {
           this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.error])

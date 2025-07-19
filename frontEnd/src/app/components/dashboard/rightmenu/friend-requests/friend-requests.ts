@@ -55,9 +55,7 @@ export class FriendRequests {
       next: (response: any) => {
         if (response.status === true) {        
           this.isFriendRequestStatus = response.data;
-          console.log(this.isFriendRequestStatus);
-          
-          this._tostr.toasterStatus(["text-[var(--btn-success)]", response.msg])
+          this._tostr.toasterStatus(["text-gray-500", response.msg])
           
           // Maybe redirect or show an alert
         } else {
@@ -77,7 +75,7 @@ export class FriendRequests {
       next: (response: any) => {
         if (response.status === true) {        
           this.isFriendRequestStatus = response.data;
-          this._tostr.toasterStatus(["text-[var(--btn-success)]", response.msg])
+          this._tostr.toasterStatus(["text-gray-500", response.msg])
         } else {
           this.isFriendRequestStatus = response.data;
           this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.error])

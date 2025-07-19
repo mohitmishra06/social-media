@@ -130,7 +130,7 @@ export class UpdateUser implements OnInit{
       next: (response: any) => {
         if (response.status === true) {
           // Maybe redirect or show an alert
-          this._tostr.toasterStatus(["text-[var(--btn-success)]", response.msg])
+          this._tostr.toasterStatus(["text-gray-500", response.msg])
         } else {
           console.log(response.errors);
           
@@ -155,7 +155,7 @@ export class UpdateUser implements OnInit{
       next: (response: any) => {
         if (response.status === true) {
           // Maybe redirect or show an alert
-          this._tostr.toasterStatus(["text-[var(--btn-success)]", response.msg])
+          this._tostr.toasterStatus(["text-gray-500", response.msg])
         } else {
           this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.msg])
         }
@@ -175,7 +175,7 @@ export class UpdateUser implements OnInit{
           this.userDetails = response.data
 
           // Maybe redirect or show an alert
-          this._tostr.toasterStatus(["text-[var(--btn-success)]", response.msg])
+          this._tostr.toasterStatus(["text-gray-500", response.msg])
         } else {
           console.log(response.errors);
           

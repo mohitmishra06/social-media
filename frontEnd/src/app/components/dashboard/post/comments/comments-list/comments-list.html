@@ -1,0 +1,44 @@
+<!-- Write comment -->
+<div class="flex items-center gap-4 ">
+    <img src="{{ currentUserImg }} " alt="User" class="w-8 h-8 rounded-full">
+    <div class="flex-1 flex items-center justify-between  w-full bg-slate-100 rounded-xl text-sm px-6 py-2">
+        <input type="text" (keydown.enter)="comment($event, postId)" class="flex-1 bg-transparent outline-none text-sm text-gray-400" placeholder="What do you think about it?"/>
+        <img src="./images/emoji.png" alt="emoji" class="w-6 h-6 cursor-pointer">
+    </div>
+</div>
+
+<!-- Show comments -->
+<div class="" *ngFor="let comment of comments">
+    <!-- Comments -->
+        <div class="flex justify-between gap-4 mt-6">
+        
+        <!-- Image -->
+        <div class="">
+            <img src="{{ url + comment.user.img }}" alt="User" class="w-10 h-10 rounded-full">
+        </div>
+
+        <!-- Desc -->
+            <div class="flex flex-col gap-2 flex-1">
+            <span class="font-medium">{{ comment.user.username ? comment.user.username : comment.user.name + ' ' + comment.user.surname}}</span>
+            <p class="text-base text-gray-400">{{ comment.comment }}</p>
+            <div class="flex items-center gap-8 text-xs text-gray-500 my-2">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-4 bg-[var(--text-lighter)] p-2 rounded-xl">
+                        <fa-icon [icon]="icon.faThumbsUp" class="text-sm text-[var(--secondary)]"/>
+                        <span class="text-gray-300">|</span>
+                        <span class="text-gray-500">
+                            123
+                            <span class="hidden md:inline"> Likes</span>
+                        </span>
+                    </div>
+                    <div class="">Reply</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Icon -->
+        <div class="flex items-center justify-center bg-[#f5f5f5] w-11 h-11 rounded-full">
+            <img src="./images/more.png" alt="more" class="w-5 h-5">
+        </div>
+    </div>
+</div>
