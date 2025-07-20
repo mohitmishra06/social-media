@@ -9,7 +9,9 @@
                     <figure class="w-full shadow-xl">
                         <img src="{{ url + userDetails.banner }}" alt="banner-img" class="h-50 w-full object-cover rounded-lg">
                         <input type="file" #bannerInput hidden (change)="updateBanner($event, userDetails.id)">
-                        <div class="absolute right-3 top-14 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-800 flex items-center justify-center w-10 h-10 rounded-full bg-[#ffffff75]  cursor-pointer" (click)="bannerInput.click()"><fa-icon [icon]="icon.faPen" class="text-black text-xl"/></div>
+                        <div class="absolute right-3 top-14 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-800 flex items-center justify-center w-10 h-10 rounded-full bg-[#ffffff75]  cursor-pointer" (click)="bannerInput.click()">
+                            <fa-icon [icon]="icon.faPen" class="text-black text-xl"/>
+                        </div>
                     </figure>
                     <figure class="absolute bottom-[-3rem] left-[50%] sm:left-[50%] md:left-3 ring-3 ring-white rounded-full  shadow-xl">
                         <img src="{{ url + userDetails.img }}" alt="user-img" class="relative object-cover rounded-full w-20 h-20">

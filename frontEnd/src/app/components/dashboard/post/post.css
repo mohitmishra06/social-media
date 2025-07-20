@@ -1,0 +1,32 @@
+/* Add this to styles.css or your component's SCSS */
+.custom-range::-webkit-slider-runnable-track {
+  background-image: var(--linear-left); /* Tailwind's blue-500 */
+  height: 4px;
+  border-radius: 9999px;
+}
+
+.custom-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 16px;
+  width: 16px;
+  background-image: var(--linear-left);
+  border-radius: 50%;
+  border: 2px solid var(--secondary);
+  margin-top: -6px; /* aligns thumb vertically */
+  cursor: pointer;
+}
+
+.custom-range::-moz-range-track {
+  background-image: var(--linear-left);
+  height: 4px;
+  border-radius: 9999px;
+}
+
+.custom-range::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  background-image: var(--linear-left);
+  border-radius: 50%;
+  border: 2px solid var(--secondary);
+  cursor: pointer;
+}

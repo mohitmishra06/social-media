@@ -204,3 +204,7 @@ EMAIL_USE_TLS=config('EMAIL_USE_TLS')
 # Settings for the image upload
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# Set it for file upload size
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 100 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880

@@ -2,152 +2,41 @@
     <div class="flex gap-2 w-max">
         <!-- Story -->
         <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
+            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]">
+                <div *ngIf="currentUserBNRImg" class="w-full relative">
+                    <img src="{{  currentUserBNRImg }}" alt="post-image" class="w-35 h-50 object-cover rounded-md shadow-2xl">
                 </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
+            </div>
+            <div class="absolute bottom-5 flex flex-col items-center gap-3">
+                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center" (click)="userStory.click()">
+                    <input type="file" #userStory hidden (change)="newStory($event, currentUser)">
+                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]"/>
+                </div>
+                <span class="font-bold bg-[#000000a8] p-1 rounded-md text-sm text-[var(--white)]">Add/Delete</span>
             </div>
         </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
+        <!-- Database user stories -->
+        <div class="flex flex-col items-center gap-2 cursor-pointer relative" *ngFor="let story of userStories">
+            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]">
+                <div *ngIf="story.img_url" class="w-full relative">
+                    <img src="{{  url + story?.img_story }}" alt="post-image" class="w-35 h-50 object-cover rounded-md shadow-2xl">
                 </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
+                <div *ngIf="story.video_url" class="w-full relative group">
+                    <video
+                        class="w-35 h-50 object-cover rounded-md shadow-2xl"
+                        #videoPlayer
+                        [src]="url + story.video_url"
+                        muted
+                        playsinline
+                        (loadedmetadata)="onLoadedMetadata(videoPlayer)">
+                        </video>
+                </div>
             </div>
-        </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
             <div class="absolute bottom-5 flex flex-col items-center gap-3">
                 <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
+                <img src="{{ url + story.user.img }}" alt="" class="bg-white h-15 w-15 object-cover rounded-full ">
                 </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
-            </div>
-        </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
-                </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
-            </div>
-        </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
-                </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
-            </div>
-        </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
-                </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
-            </div>
-        </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
-                </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
-            </div>
-        </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
-                </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
-            </div>
-        </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
-                </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
-            </div>
-        </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
-                </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
-            </div>
-        </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
-                </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
-            </div>
-        </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
-                </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
-            </div>
-        </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
-                </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
-            </div>
-        </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
-                </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
-            </div>
-        </div>
-        <!-- Story -->
-        <div class="flex flex-col items-center gap-2 cursor-pointer relative">
-            <div class="w-35 h-50 rounded-2xl bg-[var(--black)]"></div>
-            <div class="absolute bottom-5 flex flex-col items-center gap-3">
-                <div class="bg-white h-15 w-15 rounded-full flex items-center justify-center">
-                    <fa-icon [icon]="icon.faPlus" class="text-2xl text-[var(--primary)]" />
-                </div>
-                <span class="font-bold text-base text-[var(--white)]">Add Story</span>
+                <span class="font-bold text-base text-[var(--white)]">{{ story.user.username }}</span>
             </div>
         </div>
     </div>

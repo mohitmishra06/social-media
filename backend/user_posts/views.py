@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from django.http import JsonResponse
 from rest_framework.response import Response
+from pathlib import Path
 from user_posts.serializers import PostSerializers, AllPostWithRelatedData
 from user_posts.models import UserPostModels
 from linkup.general_function import GeneralFunction
@@ -37,25 +38,62 @@ class UserPostView(APIView):
     def post(self, request, format=None):
         try:
             # Decrypt user id
-            user_id = GeneralFunction.decrypt(request.data.get("userId"))
+            user_id = GeneralFunction.decrypt(request.POST.get('userId'))           # From FormData field
+
+            # Create data
             data = {
                 "user":user_id,
-                "desc":request.data.get("desc")
+                "desc":request.POST.get("description"),           # Description from FormData
             }
 
-            # This line sent data to serialization.
+            # Get file comming from angular
+            # Get file if exists
+            file = request.FILES.get('file', None)
+
+            if file:
+                uploadFile = Path(file.name)
+                extension = uploadFile.suffix.lower()
+
+                allowed_img_exts = [".png", ".jpg", ".jpeg", ".svg"]
+                allowed_video_exts = [".mp3", ".mp4"]
+
+                if extension not in allowed_img_exts and extension not in allowed_video_exts:
+                    return Response({
+                        "code": 400,
+                        "status": False,
+                        "msg": "Something went wrong",
+                        "errors": "File format should be png, jpg, jpeg, mp3, or mp4."
+                    })
+
+                # Decide whether it's an image or video
+                if extension in allowed_img_exts:
+                    data["post_img"] = file
+                elif extension in allowed_video_exts:
+                    data["post_video"] = file
+
+            # Send to serializer
             serializer = PostSerializers(data=data)
 
-            # Validate data for empty or wrong value
             if serializer.is_valid():
-                # Create a new user
                 serializer.save()
+                return Response({
+                    "code": 200,
+                    "status": True,
+                    "msg": "You have created a post.",
+                    "data": serializer.data
+                })
 
-                return Response({"code":200, "status":True, "msg":"You have created a post.", "data":serializer.data})
-            
-            return Response({"code":400, "status":False, "msg":"Something went wrong", "errors":serializer.errors})
+            # Handle serializer errors
+            if serializer.errors.get("post_video"):
+                error = serializer.errors["post_video"]
+            elif serializer.errors.get("post_img"):
+                error = serializer.errors["post_img"]
+            else:
+                error = serializer.errors
+
+            return Response({"code":400, "status":False, "msg":"Something went wrong", "errors":error})
         except Exception as e:
-            return Response({"code":500, "status":False, "msg":"Something went wrong", "errors":""})
+            return Response({"code":500, "status":False, "msg":"Internal Server Error", "errors":str(e)})
 
     # Partial update post
     def patch(self, request, format=None):
@@ -116,30 +154,21 @@ class UserPostView(APIView):
     # Delete post
     def delete(self, request, format=None):
         try:
-            # Decrypt user id
-            user_id = GeneralFunction.decrypt(request.data.get("userId"))
-
             # Get post for update
-            post = UserPostModels.objects.get(id=request.data.get("postId"), user_id=user_id)
+            post = UserPostModels.objects.filter(id=request.data.get("postId"), user_id=request.data.get("userId")).first()
 
-            # Create data
-            data = {
-                "deleted_at":True,
-            }
+            if not post:
+                return Response({"code":404, "status":False, "msg":"Something went wrong.", "errors":""})
 
-            # Set data for the partial update
-            serializer = PostSerializers(post, data=data, partial=True)
 
-            # Validate data for empty or wrong value
-            if serializer.is_valid():
-                # Create a new post
-                serializer.save()
+            # Delete record
+            delete_record, record = post.delete();
 
-                return Response({"code":200, "status":True, "msg":"Your post deleted.", "data":serializer.data})
+            if(delete_record):
+                return Response({"code":200, "status":True, "msg":"Your post was deleted.", "data":""})
             
-            return Response({"code":400, "status":False, "msg":"Something went wrong", "errors":serializer.errors})
         except Exception as e:
-            return Response({"code":500, "status":False, "msg":"Something went wrong", "errors":""})
+            return Response({"code":500, "status":False, "msg":"Internal Server Error.", "errors":str(e)})
   
 # Outside function which is call directly
 # Get user post with comment, like, userdetails

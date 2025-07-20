@@ -5,15 +5,46 @@
             <img src="{{ url + user?.img }}" alt="user" class="w-10 h-10 rounded-full">
             <div class="font-medium">{{ user?.name }}</div>
         </div>
-        <div class="flex items-center justify-center bg-[#f5f5f5] w-11 h-11 rounded-full">
+        <div class="flex items-center justify-center bg-[#f5f5f5] w-11 h-11 rounded-full cursor-pointer group relative">
             <img src="./images/more.png" alt="more" class="w-5 h-5">
+             <ul class="absolute top-10 right-0 z-5 flex flex-col gap-6 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-1000 ease-in-out w-[10rem] bg-white p-4 rounded-lg shadow-xl">
+                <li class="flex items-center gap-4" (click)="deletePost(user?.id, post.id)">
+                    <span class="text-sm text-gray-600 cursor-pointer">Delete Post</span>
+                </li>
+            </ul>
         </div>
     </div>
     
     <!-- Desc -->
     <div class="flex flex-col gap-4">
-        <div class="w-full min-h-70 relative">
-            <img src="{{  url + post?.post_img }}" alt="post-image" class="object-cover rounded-md shadow-2xl">
+        <!-- <div *ngIf="post.post_img" class="w-full min-h-70 relative"> -->
+        <div *ngIf="post.post_img" class="w-full relative">
+            <img src="{{  url + post?.post_img }}" alt="post-image" class="w-full h-70 object-cover rounded-md shadow-2xl">
+        </div>
+        <div *ngIf="post.post_video" class="w-full relative group">
+            <video
+                [src]="url + post.post_video"
+                #videoPlayer
+                class="w-full h-70 object-cover rounded-md shadow-2xl"
+                (play)="onVideoPlay($event)"
+                (timeupdate)="onTimeUpdate(videoPlayer)"
+                (loadedmetadata)="onTimeUpdate(videoPlayer)">
+            </video>
+            <!-- Custom Controls -->
+            <div class="absolute inset-0 flex justify-center items-center">
+                <button class="z-5  opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-1000 ease-in-out flex items-center justify-center w-15 h-15 bg-[#000000b0] rounded-full" (click)="togglePlayPause(videoPlayer)">
+                    <fa-icon class="text-white text-3xl" *ngIf="videoPlayer.paused" [icon]="icon.faPlay"></fa-icon>
+                    <fa-icon class="text-white text-3xl" *ngIf="!videoPlayer.paused" [icon]="icon.faPause"></fa-icon>
+                </button>
+            </div>
+            <input
+                class="absolute bottom-[0%] w-full opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-1000 ease-in-out custom-range"
+                type="range"
+                min="0"
+                [max]="videoPlayer.duration"
+                [value]="videoPlayer.currentTime"
+                (input)="videoPlayer.currentTime = $any($event.target).value"
+            />
         </div>
         <p class="text-base text-gray-400">{{ post.desc }}</p>
     </div>
