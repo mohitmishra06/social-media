@@ -5,6 +5,7 @@ import { faComment, faShare, faThumbsUp } from '@fortawesome/free-solid-svg-icon
 import { UserDataStore } from '../../../../services/userData/user-data-store';
 import { ApiCallingService } from '../../../../services/api/api-calling.service';
 import { Toastr } from '../../../../services/toastr/toastr';
+import { DataUpdate } from '../../../../services/userData/data-update';
 
 @Component({
   selector: 'app-post-intractions',
@@ -27,11 +28,16 @@ export class PostIntractions implements OnInit {
 
   icon={faThumbsUp, faComment, faShare}
 
-  constructor(private _userData:UserDataStore, private _apiCall: ApiCallingService, private _tostr:Toastr){}
+  constructor(
+    private _userData:UserDataStore,
+    private _apiCall: ApiCallingService,
+    private _tostr:Toastr,
+    private _refData:DataUpdate
+  ){}
 
   ngOnInit(): void {
     // Get current user
-    this._userData.glbUserData.subscribe(val => { this.currentUser = val.user } );
+    this._userData.user$.subscribe(val => { this.currentUser = val?.user } );
 
     // Count likes
     for(let i = 0; i< this.likes.length; i++){
@@ -64,6 +70,8 @@ export class PostIntractions implements OnInit {
       next: (response: any) => {
         if (response.status === true) {
           this.isUserLike = response.data;
+          // 🔥 TELL EVERYONE DATA IS UPDATED
+          this._refData.notifyForNewData();    // send data to refresh components for new data
           // Maybe redirect or show an alert
           this._tostr.toasterStatus(["text-gray-500", response.msg]);
         } else {

@@ -4,14 +4,16 @@ import { MobileMenuComponent } from '../mobile-menu/mobile-menu';
 import { CommonModule } from '@angular/common';
 import { Toastr } from '../../services/toastr/toastr';
 import { ApiCallingService } from '../../services/api/api-calling.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { UserDataStore } from '../../services/userData/user-data-store';
+import { DataUpdate } from '../../services/userData/data-update';
+import { People } from "../dashboard/leftmenu/people/people";
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, MobileMenuComponent, FontAwesomeModule],
+  imports: [CommonModule, MobileMenuComponent, FontAwesomeModule, RouterModule, People],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css']
 })
@@ -23,12 +25,20 @@ export default class NavbarComponent implements OnInit {
     private _apiCall:ApiCallingService,
     private _router:Router,
     private _tostr:Toastr,
-    private _userData:UserDataStore
+    private _userData:UserDataStore,
+    private _refData:DataUpdate
   ){}
 
-  ngOnInit(): void {
-    this._userData.glbUserData.subscribe(val=>{
-      this.userImg = val.userImg
+  ngOnInit(): void {    
+    // Current user id
+    this._userData.user$.subscribe(user => {
+      if(user){
+        this.userImg = user.userImg;      
+      }
+    });
+
+    this._refData.data$.subscribe(() => {
+      this.userImg;
     })
   }
 

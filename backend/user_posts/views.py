@@ -1,6 +1,8 @@
 from rest_framework.views import APIView
-from django.http import JsonResponse
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.pagination import LimitOffsetPagination     # Pagination library
+from django.http import JsonResponse
 from pathlib import Path
 from user_posts.serializers import PostSerializers, AllPostWithRelatedData
 from user_posts.models import UserPostModels
@@ -20,7 +22,7 @@ class UserPostView(APIView):
             end=8
 
             # Get the user posts
-            # This query does first it get the record accourding to id and then it filster this record to image is empty or null.
+            # This query does first it get the record accourding to id and then it filter this record to image is empty or null.
             posts = UserPostModels.objects.filter(user_id=profile_id, post_img__isnull=False).exclude(post_img="").order_by('-created_at')[start:end]
             
             if not posts:
@@ -46,7 +48,7 @@ class UserPostView(APIView):
                 "desc":request.POST.get("description"),           # Description from FormData
             }
 
-            # Get file comming from angular
+            # Get file coming from angular
             # Get file if exists
             file = request.FILES.get('file', None)
 
@@ -172,40 +174,58 @@ class UserPostView(APIView):
   
 # Outside function which is call directly
 # Get user post with comment, like, userdetails
+@api_view(["GET"])      # this convert to my simple function to DRF function using decorator
 def get_all_post_with_all_details(request):
     try:
         # Decrypt user id
         profile_id = request.GET.get("id")
+        
+        #Pagination rule
+        paginator = LimitOffsetPagination()     # Instance of LimitOffsetPagination
+        paginator.default_limit = 5     # Set default limit of par_page_records
 
-        # Get all data
-        start=0
-        end=8
-
+        # Getting project according to parameter
         posts = 0
-        if request.GET.get('id') is None:
-            posts = UserPostModels.objects.all().order_by('-created_at')[start:end]
+        if request.GET.get("moduleName") == "dashboard":
+            posts = UserPostModels.objects.all().order_by('-created_at')
         else:
-            # posts = UserPostModels.objects.select_related("user").prefetch_related(
-            #                 "post_comment",
-            #                 "post_like"
-            #             )
-
+            if not profile_id or not profile_id.isdigit():
+                return Response({
+                    "code": 400,
+                    "status": False,
+                    "msg": "Invalid user id"
+                })
+            
             # Get data with use_id, Join with post, user, comment and like table
-            posts = UserPostModels.objects.filter(user_id=profile_id).select_related("user").prefetch_related(
-                "post_comment",
-                "post_like"
-            ).annotate(
-                comment_count=Count("post_comment"),
-                like_count=Count("post_like")
-            ).order_by('-created_at')[start:end]
+            posts = (
+                UserPostModels.objects
+                .filter(user_id=int(profile_id))
+                .select_related("user")
+                .prefetch_related("post_comment", "post_like")
+                .annotate(
+                    comment_count=Count("post_comment", distinct=True),
+                    like_count=Count("post_like", distinct=True)
+                )
+                .order_by("-created_at")
+            )
 
-        if not posts:
-            return JsonResponse({"code":404, "status":False, "msg":"Something went wrong", "errors":"Data not found."})
+        # Pass the result in pagination library first
+        page = paginator.paginate_queryset(posts, request)
         
-        # 🔥 Serialize the queryset
-        serialized_posts = AllPostWithRelatedData(posts, many=True)
+        if page is None or len(page) == 0:      # If no data found or fetch
+            return JsonResponse({"code":404, "status":False, "msg":"Data not found", "errors":"Data not found."})
         
-        return JsonResponse({"code":200, "status":True, "msg":"You have created a post.", "data":serialized_posts.data})
+        # 🔥 Serialize the queryset, pass pagination object in serializar
+        serialized_posts = AllPostWithRelatedData(page, many=True)
+        
+        # Return pagination response because here will not work drf or simple jsonResponse object
+        return paginator.get_paginated_response({
+            "code":200,
+            "status":True,
+            "msg":"All posts",
+            "data":serialized_posts.data
+        })
+        # return paginator.get_paginated_response(serialized_posts.data)
         
     except Exception as e:
         return JsonResponse({"code":500, "status":False, "msg":"No post found", "errors":str(e)})

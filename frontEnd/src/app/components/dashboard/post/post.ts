@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faComment, faPause, faPlay, faShare, faThumbsUp } from '@fortawesome/free-solid-svg-icons';
 import { Comments } from "./comments/comments";
@@ -9,6 +9,7 @@ import { PostIntractions } from "./post-intractions/post-intractions";
 import { ApiCallingService } from '../../../services/api/api-calling.service';
 import { Toastr } from '../../../services/toastr/toastr';
 import { UserDataStore } from '../../../services/userData/user-data-store';
+import { DataUpdate } from '../../../services/userData/data-update';
 
 @Component({
   selector: 'app-post',
@@ -17,8 +18,9 @@ import { UserDataStore } from '../../../services/userData/user-data-store';
   styleUrl: './post.css'
 })
 export class Post implements OnInit{
-  @Input() post:any;
-  user?:User;
+  @Input() posts:any;
+  @Input() moduleName:any;
+  user?:any;
   userPosts?:any;
   likes?:any;
   comments?:number;
@@ -32,13 +34,21 @@ export class Post implements OnInit{
   constructor(
     private _apiCall:ApiCallingService,
     private _tostr:Toastr,
+    private _refData:DataUpdate
   ){}
 
   ngOnInit(): void {
-    this.user = this.post.following;
-    this.likes = this.post.user_like;
-    this.comments = this.post.user_comment;
-    this.userPosts = this.post.user_post    
+    // Different for dashboard and profile
+    if(this.moduleName=="profile"){ 
+      this.user = this.posts.following;
+      this.userPosts = this.posts.user_post;
+    }else{
+      this.user = this.posts.user; 
+    }
+    
+    // Common for profile and dashboard
+    this.likes = this.posts.post_like;
+    this.comments = this.posts.post_comment;
   }
 
   // Play video only one at a time
@@ -75,16 +85,16 @@ export class Post implements OnInit{
   }
 
   // Delete post
-  deletePost(userId:any, postId:any){
-    console.log(userId);
-    console.log(postId);
-    
+  deletePost(userId:any, postId:any){    
     // Call api for saving data
     this._apiCall.deleteApi("posts/", {"userId":userId, "postId":postId}).subscribe({
       next: (response: any) => {
         if (response.status === true) {
           // Get all stories
           this._tostr.toasterStatus(["text-gray-500", response.msg])
+          
+          // 🔥 TELL EVERYONE DATA IS UPDATED
+          this._refData.notifyForNewData();
         } else {
           console.log(response.errors);
           

@@ -4,7 +4,7 @@
         <a class="flex items-center gap-2">
             <div class="flex items-center justify-center w-10 h-10 rounded-full bg-[var(--text-lighter)]">
                 <fa-icon [icon]="icon.faPenFancy" class="text-lg text-[var(--primary)]"/>
-            </div>            
+            </div>
             <span class="font-semibold text-sm text-[var(--text-light)]">Create Post</span>
         </a>
      </div>
@@ -14,15 +14,37 @@
         <form [formGroup]="postForm" class="" enctype="multipart/form-data">
             <div class="flex gap-6 border-[1px] border-gray-200 p-4 rounded-lg">
                 <div class="w-full">
-                    <textarea name="description" id="description" required  formControlName="description" placeholder="What's on your mind?" class="w-full bg-transparent outline-none text-gray-400 text-sm" rows="4"></textarea>
+                    <textarea
+                        name="description" id="description"
+                        required
+                        formControlName="description"
+                        placeholder="What's on your mind?"
+                        class="w-full bg-transparent outline-none text-gray-400 text-sm"
+                        rows="4"
+                        [(ngModel)]="comment"
+                    ></textarea>
                     <small class="text-[var(--btn-danger)]" *ngIf="errorMessage">{{ errorMessage }}.</small>
                     <span *ngIf="(postForm.controls['description'].errors && postForm.controls['description'].touched) || (postForm.errors && postForm.controls['description'].touched)" class=" tooltip text-bg-gradient-left-danger">
                         <span class="tooltiptext" *ngIf="postForm.controls['description'].errors?.['required']">This fields is required.</span>
                     </span>
                 </div>
-                <div class="flex flex-col items-center gap-2">
+                <div class="flex flex-col items-center gap-2 relative">
                     <img src="{{ currentUserImg }}" alt="noAvatar" class="w-6 h-6 rounded-full">
-                    <img src="./images/emoji.png" alt="emoji" class="w-6 h-6 rounded-full cursor-pointer">
+                    <!-- Open emoji picker -->
+                    <img 
+                        src="./images/emoji.png"
+                        alt="emoji"
+                        class="w-6 h-6 rounded-full cursor-pointer"
+                        (click)="toggleEmoji()"
+                    >
+                    <!-- Emoji box -->
+                    <div *ngIf="showEmoji" class="h-50 overflow-y-auto scrollbar-hide absolute top-15 left-10 z-50 bg-slate-200 rounded-xl shadow-xl">
+                        <!-- Emoji Picker -->
+                        <emoji-mart                            
+                            (emojiSelect)="addEmoji($event)"
+                            class=""
+                        ></emoji-mart>
+                    </div>
                     <button type="submit" (click)="creatPost()" *ngIf="postForm.valid"><img src="./images/send_btn.png" alt="emoji" class="w-7 h-7 rounded-full cursor-pointer"/></button>
                 </div>
             </div>

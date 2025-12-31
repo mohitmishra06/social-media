@@ -351,7 +351,7 @@ class ProfileUpdateView(APIView):
 
             # Dcrypt the comming encrypted value
             user_id = GeneralFunction.decrypt(request.GET.get("id"))
-
+            
             # Get user
             user = User.objects.filter(id=user_id).first()
 
@@ -391,7 +391,6 @@ class ProfileUpdateView(APIView):
                 "posts": posts,
             })
 
-
             if not user:
                 return Response({"code":404, "status":False, "msg":"User doesn't exists.", "errors": ''})
             
@@ -417,7 +416,7 @@ class ProfileUpdateView(APIView):
                 "city":request.data.get("city"),
                 "description":request.data.get("desc"),
             }
-
+            
             # This line sent data to serialization.
             serializer = UserProfileSerializer(user, data=data, partial=True)
 
@@ -464,5 +463,22 @@ class ProfileUpdateView(APIView):
                 return Response({"code":200, "status":True, "msg":"File uploaded successfully.", "data":serializer.data})
             
             return Response({"code":400, "status":False, "msg":"Some fields are messing", "errors":serializer.errors})
+        except Exception as e:
+            return Response({"code":500, "status":False, "msg":"Internal Server Error", "errors":str(e)})
+        
+
+# All members
+class PeopleView(APIView):
+    # Get all people
+    def get(self, request, formate=None):
+        try:
+            users = User.objects.all()
+        
+            if not users:
+                return Response({"code":404, "status":False, "msg":"No user found.", "errors": ''})
+            
+            serializer = UserSerializer(users, many=True)
+            return Response({"code":200, "status":True, "msg":"All users", "data":serializer.data})
+        
         except Exception as e:
             return Response({"code":500, "status":False, "msg":"Internal Server Error", "errors":str(e)})

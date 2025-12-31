@@ -1,0 +1,31 @@
+/* Global CSS ya component CSS me */
+/* desing emoji dialog box */
+/* remove unwanted emoji's */
+:host ::ng-deep .emoji-mart-bar {
+  display: none;
+}
+
+:host ::ng-deep .emoji-mart{
+    padding: 1rem;
+}
+
+:host ::ng-deep .emoji-mart-search{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border: 1px solid var(--secondary);
+    border-radius: 0.7rem;
+}
+
+:host ::ng-deep .emoji-mart-search .emoji-mart-sr-only,
+:host ::ng-deep .emoji-mart-search .emoji-mart-search-icon{
+    display: none;
+}
+
+:host ::ng-deep .emoji-mart-search input{
+    padding: 0.3rem;
+    width: 100%;
+    outline: none;
+}

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ChangePasswordDetails, UpdatePersonalDetails, User } from '../../../interface/user.interface';
 import { CommonModule } from '@angular/common';
 import { ApiCallingService } from '../../../services/api/api-calling.service';
@@ -8,6 +8,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCamera, faClose, faPen } from '@fortawesome/free-solid-svg-icons';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { UserDataStore } from '../../../services/userData/user-data-store';
+import { DataUpdate } from '../../../services/userData/data-update';
 
 @Component({
   selector: 'app-update-user',
@@ -17,7 +19,8 @@ import { Router } from '@angular/router';
 })
 export class UpdateUser implements OnInit{
   icon = { faClose, faPen, faCamera }
-  @Input() currentuser?:User;
+  @Input() loggedUser?:any; // get data parent to child
+  @Output() updateUser = new EventEmitter<any>(); // send data child to parent
   isOpenModal:boolean = false     // This decide the modal will open or close
   isTabOpen:boolean = true;
   userDetails:any;
@@ -29,31 +32,22 @@ export class UpdateUser implements OnInit{
     private _apiCall:ApiCallingService,
     private _tostr:Toastr,
     private _fb:FormBuilder,
-    private _router:Router
+    private _router:Router,
+    private _userData:UserDataStore,
+    private _refData:DataUpdate
   ){}
 
   ngOnInit(): void {
-    this.loadUser();  // Call this instead of doing logic inline    
+    this.loadUser();  // Call this instead of doing logic inline
   }
 
   // This function call for get user data.
   loadUser(): void {
-  if (this.currentuser) {
-      this.getUserDetails(this.currentuser);  // Your existing function
+    if (this.loggedUser) {
+      this.getUserDetails(this.loggedUser.userId);  // Your existing function
     } else {
       console.warn('User is undefined');
     }
-  }
-
-  // Refresh the page after updating any component with the data
-  refreshCurrentRoute() {
-    // Get current url path
-    const currentUrl = this._router.url;
-
-    // Navigate to current user with lication change skip
-    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-      this._router.navigate([currentUrl]);
-    });
   }
   
   // only email and number are allow
@@ -61,7 +55,7 @@ export class UpdateUser implements OnInit{
     let emlRgx = /^[^\s@A-Z]+@[^\s@A-Z0-9]+\.[^\s@A-Z0-9]+$/;
     let numRgx = /^[0-9]*$/;
        
-   return ((emlRgx.test(frm.get('email')?.value) ) || (numRgx.test(frm.get('email')?.value))) ?
+    return ((emlRgx.test(frm.get('email')?.value) ) || (numRgx.test(frm.get('email')?.value))) ?
      null: {mismatch:true}
   }
 
@@ -81,7 +75,7 @@ export class UpdateUser implements OnInit{
     this._apiCall.getApi("auth/user-details/", { "id":id }).subscribe({
       next: (response: any) => {
         if (response.status === true) {
-          this.userDetails = response.data;
+          this.userDetails = response?.data;
           // MAKE FORMS
           // Personal details
           this.updateForm = this._fb.group({
@@ -129,11 +123,11 @@ export class UpdateUser implements OnInit{
     this._apiCall.putApi("auth/profile/", updateData).subscribe({
       next: (response: any) => {
         if (response.status === true) {
-          // Maybe redirect or show an alert
+          this.updateUser.emit(response?.data);  // set data for page refresh
+
           this._tostr.toasterStatus(["text-gray-500", response.msg])
-        } else {
-          console.log(response.errors);
-          
+          this.setOpen(); //close modal
+        } else {      
           this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.msg])
         }
       },
@@ -173,9 +167,12 @@ export class UpdateUser implements OnInit{
         if (response.status === true) {
           // Update data after response
           this.userDetails = response.data
-
-          // Maybe redirect or show an alert
+          this._refData.notifyForNewData();
+          // Update user form toastr
           this._tostr.toasterStatus(["text-gray-500", response.msg])
+          
+          // this.setOpen(); //close modal
+
         } else {
           console.log(response.errors);
           

@@ -10,10 +10,10 @@
             <span>News feeds</span>
         </div>
         <hr class="border-t-1 border-gray-100 w-36 self-center" />
-        <div class="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100 cursor-pointer">
-            <fa-icon [icon]="icon.faPeopleGroup" class="w-6 h-6 text-base text-[var(--primary)]"/>
-            <span class="">People</span>
-        </div>
+        <span class="cursor-pointer">
+            <!-- This open modal for people/members -->
+            <app-people location="leftmenu"></app-people>
+        </span>
         <hr class="border-t-1 border-gray-100 w-36 self-center" />
         <div class="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100 cursor-pointer">
             <fa-icon [icon]="icon.faUsers" class="w-6 h-6 text-base text-[var(--primary)]"/>

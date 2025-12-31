@@ -2,26 +2,22 @@
     <!-- Start -->
     <div class="md:hidden lg:block w-[20%]" routerLink="">
         <p class="flex items-center justify-center gap-2">
-            <!-- <span class="flex items-center justify-center border-4 border-solid border-[--shaded-2] w-[3rem] h-[3rem] rounded-full">
-                <fa-icon class="font-bold text-2xl text-[--primary]" [icon]="icon.faUsers"/>
-            </span>
-            <span class="font-bold text-xl text-[--primary]"><span class="text-6xl text-[--shaded-2]">L</span>ink<span  class="text-3xl text-[--shaded-2]">UP</span></span> -->
-            <img src="./images/logo.png" class="h-12 w-30"/>
+            <a routerLink="/"><img src="./images/logo.png" class="h-12 w-30"/></a>
         </p>
     </div>
      <!-- Middle -->
     <div class="hidden md:flex w-[50%] text-sm items-center justify-between">
         <!-- Links -->
         <div class="flex gap-6 text-gray-600">
-            <div class="flex gap-2 items-center" routerLink="">
+            <div class="flex gap-2 items-center cursor-pointer" [routerLink]="['/']">
                 <img class="w-4 h-4" src="./images/home.png" alt="home"/>
                 <span>Home</span>
             </div>
-            <div class="flex gap-2 items-center" routerLink="">
+            <div class="flex gap-2 items-center cursor-pointer">
                 <img class="w-4 h-4" src="./images/friends.png" alt="friends.png"/>
                 <span>Friends</span>
             </div>
-            <div class="flex gap-2 items-center" routerLink="">
+            <div class="flex gap-2 items-center cursor-pointer">
                 <img class="w-4 h-4" src="./images/stories.png" alt="stories.png"/>
                 <span>Stories</span>
             </div>
@@ -35,9 +31,9 @@
     <div class="w-[30%] flex items-center gap-4 xl:gap-8 justify-end">
         <!-- If user is authenticat -->
          <div class="flex items-center gap-6">
-            <div class="hidden md:flex cursor-pointer">
-                <img src="./images/people.png" alt="" class="w-5 h-5" />
-            </div>
+            <span>
+                <app-people location="navbar"></app-people>
+            </span>
             <div class="hidden md:flex cursor-pointer">
                 <img src="./images/messages.png" alt="" class="w-5 h-5" />
             </div>
@@ -48,8 +44,8 @@
                 <img src="{{ userImg }}" alt="" class="w-8 h-8 rounded-full" />
                 <ul class="absolute top-10 right-0 z-5 flex flex-col gap-6 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-1000 ease-in-out w-[10rem] bg-white p-4 rounded-lg shadow-xl">
                     <li class="flex items-center gap-4">
-                        <fa-icon [icon]="icon.faUser" class="text-sm text-gray-400 cursor-pointer"/>
-                        <span class="text-sm text-gray-400 cursor-pointer">Profile</span>
+                        <!-- <fa-icon [icon]="icon.faUser" class="text-sm text-gray-400 cursor-pointer"/> -->
+                        <!-- <span class="text-sm text-gray-400 cursor-pointer">Profile</span> -->
                     </li>
                     <hr class="border-t-1 border-gray-100" />
                     <li class="flex items-center gap-4" (click)="logout()">

@@ -6,8 +6,10 @@
             <!-- <img src="https://images.pexels.com/photos/9436715/pexels-photo-9436715.jpeg" alt="Banner" class="object-cover rounded-md shadow-xl h-[290px] w-full"/> -->
             <img src="{{ url + userData?.banner }}" alt="Banner" class="object-cover rounded-md shadow-xl h-[290px] w-full"/>
          </div>
-        <!-- User -->
+
+         <!-- User -->
          <div class="">
+            <!-- profile -->
             <div class="flex items-center relative">
                 <figure class="absolute top-[-20px] left-3 z-2 ring-4 ring-white shadow-2xl rounded-full">
                     <img src="{{ url + userData?.img }}" alt="user" class="rounded-full h-22 w-22 object-cover"/>
@@ -36,9 +38,9 @@
                             </span>
                             <span class="hidden md:inline text-xs text-gray-400"> Following</span>
                         </div>
-                        <div *ngIf="userData?.id != currentUser" class="flex items-center justify-center h-8 p-2 btn-bg-gradient-success rounded-lg shadow-lg cursor-pointer">
+                        <!-- <div *ngIf="userData?.id != currentUser" class="flex items-center justify-center h-8 p-2 btn-bg-gradient-success rounded-lg shadow-lg cursor-pointer">
                             <button class="outline-none text-[var(--white)] font-semibold">ADD FRIEND</button>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -85,7 +87,7 @@
             <!-- If your is blocked so that content not be show. -->
             <div>
                 <div *ngIf="!isBlocked">
-                    <app-feed [userId]="userData?.id"/>
+                    <app-feed [userId]="userData?.id" moduleName="profile"/>
                 </div>
                 <p *ngIf="isBlocked" class="w-full text-center text-lg text-gray-400 font-medium">{{ blockedMessage }}.</p>
             </div>

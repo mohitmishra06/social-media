@@ -103,12 +103,12 @@ WSGI_APPLICATION = 'linkup.wsgi.application'
 
 DATABASES = {
     'default':{
-        'ENGINE':'django.db.backends.mysql',
+        'ENGINE':'django.db.backends.postgresql',
         'NAME':config('DB_NAME'),
         'USER':config('DB_USER'),
         'PASSWORD':config('DB_PWD'),
         'HOST':config('DB_HOST'),
-        'PORT':3306
+        'PORT':5432
     }
 }
 

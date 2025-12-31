@@ -1,5 +1,5 @@
 from django.urls import path
-from user_auth.views import UserAuthentication, UserLogin, UserTokenValidation, ProfileUpdateView
+from user_auth.views import UserAuthentication, UserLogin, UserTokenValidation, ProfileUpdateView, PeopleView
 from . import views
 
 urlpatterns = [
@@ -13,5 +13,6 @@ urlpatterns = [
     path('user-details/', views.user_details, name='user-details'),
     path('check-username/', views.check_username, name='check-username'),
     path('new-otp/', views.new_otp, name='new-otp'),
-    path('token_validation/', UserTokenValidation.as_view(), name="token_validation")
+    path('token_validation/', UserTokenValidation.as_view(), name="token_validation"),
+    path('all-users/', PeopleView.as_view(), name="all-users")
 ]

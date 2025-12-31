@@ -1,0 +1,54 @@
+<!-- Modal open/close -->
+<!-- This work for navbar but mobile view this is not working -->
+<span class="" *ngIf="location === 'mobile-view'" (click)="toggleModal()">
+    Members
+</span>
+
+<!-- This work for navbar -->
+<div class="hidden md:flex cursor-pointer" *ngIf="location === 'navbar'" (click)="toggleModal()">
+    <img src="./images/people.png" alt="" class="w-5 h-5" />
+</div>
+
+<!-- This work for leftmenu -->
+<div class="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100 cursor-pointer" *ngIf="location === 'leftmenu'" (click)="toggleModal()">
+    <fa-icon [icon]="icon.faPeopleGroup" class="w-6 h-6 text-base text-[var(--primary)]"/>
+    <span>People</span>
+</div>
+
+<!-- People card -->
+<div *ngIf="isOpenModal" class="fixed w-screen h-screen top-0 left-0 bg-[#000000cf] flex items-center justify-center z-5">
+    <div class="relative group bg-white rounded-lg shadow-xl flex flex-col gap-2 w-full md:w-1/2 xl:w-1/2">
+        <!-- Header -->
+        <div class="rounded-lg py-3 px-5 h-12">
+            <div class="flex justify-between items-center">
+                <span class="text-base font-semibold text-[var(--black)]">People</span>
+                <span class="text-sm text-blue-500 cursor-pointer" (click)="toggleModal()">
+                    <fa-icon [icon]="icon.faClose" class="w-8 h-8 text-base text-[var(--btn-danger)]"/>                    
+                </span>
+            </div>
+        </div>
+
+        <!-- List -->
+        <div class="h-130 overflow-y-auto scrollbar-hide">
+            <div class="px-5 my-1" *ngFor="let people of peoples">
+                <!-- Current user will not show -->
+                <div *ngIf="loggedUser != people.id">
+                    <div class="flex justify-between items-center h-20 px-2 bg-[#eee] gap-2 rounded-lg" [routerLink]="['/profile', people?.encrypted_id]" (click)="toggleModal()">
+                        <div class="flex flex-2 items-center gap-3 cursor-pointer">
+                            <img src="{{ url + people?.img}}" alt="profile" class="rounded-full w-10 h-10"/>
+                            <div class="flex flex-col">
+                                <p class="text-base font-semibold text-[var(--black)]">{{ people?.username }}</p>
+                                <span class="text-xs text-gray-400">{{ people?.email }}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-1 gap-2 mt-2 justify-end" (click)="sendRequest(currentUser, people?.id)">
+                            <div class="flex items-center justify-center h-8 w-8 rounded-full cursor-pointer bg-[var(--white)]">
+                                <fa-icon [icon]="icon.faChevronRight" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+    </div>
+</div>

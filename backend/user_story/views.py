@@ -19,7 +19,7 @@ class UserStoryView(APIView):
 
             # Calculate 24 hours ago
             time_threshold = now - timedelta(hours=24)
-            
+            print(request.GET.get("userId"))
             # Get followed users
             followed_users = UserFollowerModel.objects.filter(follower_id=request.GET.get("userId")).values_list('following', flat=True)
 
@@ -68,15 +68,6 @@ class UserStoryView(APIView):
                         "errors": "File format should be png, jpg, jpeg, mp3, or mp4."
                     })
 
-                # Size validation
-                # if file.size > 5 * 1024 * 1024:
-                #     return Response({
-                #         "code": 400,
-                #         "status": False,
-                #         "msg": "File too large.",
-                #         "errors": "Maximum allowed size is 5MB."
-                #     })
-
                 # Decide whether it's an image or video
                 if extension in allowed_img_exts:
                     data["img_url"] = file
@@ -99,7 +90,7 @@ class UserStoryView(APIView):
                         return Response({
                             "code": 200,
                             "status": True,
-                            "msg": "You have created a post.",
+                            "msg": "You have created a story.",
                             "data": serializer.data
                         })
                         

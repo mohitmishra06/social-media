@@ -32,7 +32,7 @@ class UserFollowersView(APIView):
 
         # First time do not found any entry that's time genereate exception
         except UserFollowerModel.DoesNotExist:
-            return Response({"code":403, "status":True, "msg":"The user didn't follow you.", "data":False})
+            return Response({"code":403, "status":False, "msg":"The user didn't follow you.", "data":False})
     
         except Exception as e:
                 return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":str(e)})
@@ -180,7 +180,7 @@ class UserFriendRequestView(APIView):
                 # Get current user friend request
                 friends_request = UserFollowerRequestModel.objects.filter(receiver_id=current_user).select_related("sender")
                 
-                # If no records found to related to current user
+                # If no records found related to current user
                 if not friends_request:
                     return JsonResponse({"code":404, "status":False, "msg":"No user found.", "errors":""})
                 
@@ -259,19 +259,22 @@ class UserFriendRequestView(APIView):
 
         except Exception as e:
             return Response({"code":500, "status":False, "msg":"Internal Server Error.", "data":str(e)})
-        
+
 # Get user post with comment, like, userdetails
 def get_all_followers(request):
     try:
         # Get profile id
         profile_id = request.GET.get("id")
+        print(profile_id)
+        
         try:
             # Get all data
             start=0
             end=8
 
-            
-            followers = UserFollowerModel.objects.filter(following_id=profile_id).select_related("following").prefetch_related(
+            # Get all follower user's details 
+            # followers = UserFollowerModel.objects.filter(following_id=profile_id).select_related("following").prefetch_related(
+            followers = UserFollowerModel.objects.filter(follower_id=profile_id).select_related("follower").prefetch_related(
                 Prefetch("following__user_post"),
                 Prefetch("following__user_comment"),
                 Prefetch("following__user_like")

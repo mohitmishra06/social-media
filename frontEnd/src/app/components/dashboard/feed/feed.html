@@ -1,8 +1,23 @@
-<div *ngIf="followingUserPost">
-    <div *ngFor="let followingPost of followingUserPost">
-        <app-post [post]="followingPost"/>
+<div *ngIf="userPosts && moduleName=='dashboard'">
+    <div *ngFor="let userPost of userPosts">
+        <app-post [posts]="userPost" moduleName="dashboard"></app-post>
     </div>
 </div>
-<div *ngIf="!followingUserPost">
+
+<div *ngIf="!userPosts && moduleName=='dashboard'">
     <p class="w-full text-center text-lg text-gray-400 font-medium">No post exist of this user.</p>
 </div>
+
+<div *ngIf="followingUserPost && moduleName=='profile'">
+    <div *ngFor="let followingPost of followingUserPost">
+        <app-post [posts]="followingPost" moduleName="profile"></app-post>
+    </div>
+</div>
+
+<div *ngIf="!followingUserPost && moduleName=='profile'">
+    <p class="w-full text-center text-lg text-gray-400 font-medium">No post exist of this user.</p>
+</div>
+
+<p *ngIf="loading" class="text-center text-gray-400">
+Loading more posts...
+</p>

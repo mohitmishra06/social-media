@@ -16,7 +16,7 @@
                     <p class="text-base font-semibold text-[var(--black)]">
                         {{ (friend.sender?.name && friend.sender?.surnmane) ? friend.sender?.name +' ' + friend.sender?.surnmae : friend.sender?.username }}
                     </p>
-                    <span class="text-xs text-gray-400">12 mutual friends</span>
+                    <span class="text-xs text-gray-400">{{ friend.sender?.email }}</span>
                 </div>
             </div>
             <div class="flex-1 flex gap-2 mt-2">

@@ -6,12 +6,16 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class UserDataStore {
   // Store user object
-  glbUserData:BehaviorSubject<any>=new BehaviorSubject<any>({})
-  constructor() { }
+  // glbUserData:BehaviorSubject<any>=new BehaviorSubject<any>({})
+  private userSource = new BehaviorSubject<any>(null);
+  user$ = this.userSource.asObservable();
 
-  // Function store the coming user data
-  setUserData(userData?:any){
-    this.glbUserData.next(userData)
+  setUser(user: any) {
+    this.userSource.next(user);
+  }
+
+  getUser() {
+    return this.userSource.value;
   }
 
 }

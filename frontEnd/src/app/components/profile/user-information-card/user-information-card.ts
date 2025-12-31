@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { afterEveryRender, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ApiCallingService } from '../../../services/api/api-calling.service';
-import { ActivatedRoute } from '@angular/router';
 import { Toastr } from '../../../services/toastr/toastr';
 import { UserDataStore } from '../../../services/userData/user-data-store';
 import { UpdateUser } from "../update-user/update-user";
@@ -19,6 +18,7 @@ export class UserInformationCard implements OnInit{
   isFollowingSent:boolean = false;
   userId:any;     // profile id
   currentUser:any;
+  loggedUserDetails:any;
 
   constructor(
     private _userData:UserDataStore,
@@ -28,7 +28,13 @@ export class UserInformationCard implements OnInit{
 
   ngOnInit(): void {
     // Current user id
-    this._userData.glbUserData.subscribe(val => { this.currentUser = val.user, this.userId = val.userId });
+    this._userData.user$.subscribe(user => {
+      if(user){
+        this.currentUser = user.user;
+        this.userId = user.userId;
+        this.loggedUserDetails = user;
+      }
+    });
 
     // Call block user function
     this.followers(this.user.id);
@@ -36,10 +42,15 @@ export class UserInformationCard implements OnInit{
     this.blocked(this.user.id);    
   }
 
+  onUserUpdated(user: any) {
+    this.user = { ...user }; // 🔥 reference change
+  }
+
+
   // Get follower user details
   followers(id:any) {
     this._apiCall.getApi("users/followers/", { "id":id }).subscribe({
-      next: (response: any) => {
+      next: (response?: any) => {
         if (response.status === true) {
           this.isFollowing = response.data;
           // Maybe redirect or show an alert
@@ -57,7 +68,7 @@ export class UserInformationCard implements OnInit{
   followerReqRes(id:any) {
     this._apiCall.getApi("users/requests/", { "id":id }).subscribe({
       next: (response: any) => {
-        if (response.status === true) {
+        if (response?.status === true) {
           this.isFollowingSent = response.data
           // Maybe redirect or show an alert
         } else {
@@ -74,8 +85,8 @@ export class UserInformationCard implements OnInit{
   blocked(id:any) {
     this._apiCall.getApi("users/blocked/", { "id":id }).subscribe({
       next: (response: any) => {
-        if (response.status === true) {
-          this.isUserBlocked = response.data
+        if (response?.status === true) {
+          this.isUserBlocked = response?.data
           // Maybe redirect or show an alert
         } else {
           console.log("User is not blocked");

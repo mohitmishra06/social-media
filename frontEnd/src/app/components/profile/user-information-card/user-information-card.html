@@ -11,7 +11,7 @@
                     Show the update user component if user.id equals currentUser 
                     and send encrypted user id to the update component.
                  -->
-                <app-update-user #update *ngIf="user?.id === currentUser" [currentuser]="userId"/>
+                <app-update-user #update *ngIf="user?.id === currentUser" [loggedUser]="loggedUserDetails" (updateUser)="onUserUpdated($event)"/>
 
             </span>
         </div>
@@ -42,7 +42,8 @@
                 <figure>
                     <img src="./images/link.png" alt="ling" class="w-6">
                 </figure>
-                <a href="{{ user.website }}" class="font-medium text-[var(--primary)]">{{ user.website }}</a>
+                <!-- <a href="{{ user.website }}" class="font-medium text-[var(--primary)]">{{ user.website }}</a> -->
+                <a href="{{ user.website }}" class="font-medium text-[var(--primary)]" target="_blank">Portfolio</a>
             </div>            
             <div class="flex gap-1 items-center">
                 <figure>

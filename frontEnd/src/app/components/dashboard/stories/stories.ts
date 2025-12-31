@@ -28,7 +28,8 @@ export class Stories implements OnInit{
   ){}
 
   ngOnInit(): void {
-    this._userData.glbUserData.subscribe(val => { 
+    this._userData.user$.subscribe(val => {
+      if(!val) return; // val is dont have value
       this.currentUser = val.user;
       this.currentUserImg = val.userImg
       this.currentUserBNRImg = val.userCover
@@ -38,13 +39,13 @@ export class Stories implements OnInit{
   }
 
   // Get all user story
-  getStories(userId:any){
+  getStories(userId:any){    
     // Call api for saving data
     this._apiCall.getApi("users/story/", {"userId":userId}).subscribe({
       next: (response: any) => {
         if (response.status === true) {
           // Get all stories
-          this.userStories = response.data;          
+          this.userStories = response.data;
         } else {          
           this._tostr.toasterStatus(["text-[var(--btn-danger)]", response.msg])
         }
@@ -72,8 +73,7 @@ export class Stories implements OnInit{
     this._apiCall.postApi("users/story/", formData).subscribe({
       next: (response: any) => {
         if (response.status === true) {
-          // Maybe redirect or show an alert
-          this._tostr.toasterStatus(["text-gray-500", response.msg])
+          this._tostr.toasterStatus(["text-gray-500", response.msg])          
         } else {
           console.log(response.errors);
           

@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { People } from "../dashboard/leftmenu/people/people";
 
 @Component({
   selector: 'app-mobile-menu',
   standalone:true,
-  imports: [CommonModule],
+  imports: [CommonModule, People],
   templateUrl: './mobile-menu.html',
   styleUrls: ['./mobile-menu.css']
 })

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCamera, faImage, faPenFancy, faPlay, faVideoCamera } from '@fortawesome/free-solid-svg-icons';
@@ -7,17 +7,31 @@ import { ApiCallingService } from '../../../services/api/api-calling.service';
 import { Toastr } from '../../../services/toastr/toastr';
 import { Post } from '../../../interface/post.interface';
 import { UserDataStore } from '../../../services/userData/user-data-store';
+import { DataUpdate } from '../../../services/userData/data-update';
+
+// Add emoji
+import { PickerModule } from '@ctrl/ngx-emoji-mart';
+import { ViewChild, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-addpost',
-  imports: [FormsModule, FontAwesomeModule, CommonModule, ReactiveFormsModule],
+  imports: [
+    FormsModule,
+    FontAwesomeModule,
+    CommonModule,
+    ReactiveFormsModule,
+    PickerModule
+  ],
   templateUrl: './addpost.html',
   styleUrl: './addpost.css'
 })
 export class Addpost implements OnInit {
   errorMessage:string = '';
-  userId:string =''
+  userId:any;
   currentUserImg?:string;
+  // Add for emoji
+  comment: string = '';
+  showEmoji:boolean = false; // define emoji open/close
 
   // For upload image using formdata() object.
   postForm: FormGroup;
@@ -29,7 +43,8 @@ export class Addpost implements OnInit {
       private _apiCall:ApiCallingService,
       private _tostr:Toastr,
       private _userData:UserDataStore,
-      private _fb:FormBuilder
+      private _fb:FormBuilder,
+      private _refData:DataUpdate // its use for page refresh
     ){
 
      this.postForm = this._fb.group({
@@ -38,10 +53,25 @@ export class Addpost implements OnInit {
   }
 
   ngOnInit(): void {
-    this._userData.glbUserData.subscribe(val => {
+    this._userData.user$.subscribe(val => {
+      if(!val) return;
       this.userId = val.userId;
-      this.currentUserImg = val.userImg
-    })
+      this.currentUserImg = val.userImg;      
+    });
+  }
+
+  // Add code for emoji
+  // This line cought the input element with this line
+  @ViewChild('commentInput') commentInput!: ElementRef<HTMLInputElement>;
+
+  // Emoji dilog box open and close
+  toggleEmoji() {
+    this.showEmoji = !this.showEmoji;
+  }
+
+  addEmoji(event: any) {
+    this.comment += event.emoji.native;
+    this.showEmoji = false;
   }
 
   // Update variable with select file
@@ -57,7 +87,7 @@ export class Addpost implements OnInit {
     const formData = new FormData();
     formData.append('userId', this.userId);
     formData.append('description', this.postForm.get('description')?.value);
-
+    
     // If file is selected
     if (this.selectedFile) {
       formData.append('file', this.selectedFile);
@@ -68,8 +98,14 @@ export class Addpost implements OnInit {
       // next() method will be executed only when there will be no error.
       next :(response:any) => {
         // On success.
-        if(response.status === false){
-            this._tostr .toasterStatus(['text-[var(--btn-danger)]', response.errors]);
+        if(response.status === true){
+            this._tostr.toasterStatus(['text-[var(--btn-danger)]', response.errors]);
+            
+            this.postForm.reset();
+            this.selectedFile = null;
+
+            // 🔥 TELL EVERYONE DATA IS UPDATED
+            this._refData.notifyForNewData();    // send data to refresh components for new data
             return;
           }else {          
           this._tostr.toasterStatus(["text-gray-500", response.msg])

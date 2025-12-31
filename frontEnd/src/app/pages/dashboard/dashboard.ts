@@ -1,4 +1,4 @@
-import { AfterContentInit, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Leftmenu } from "../../components/dashboard/leftmenu/leftmenu";
 import { Rightmenu } from "../../components/dashboard/rightmenu/rightmenu";
 import { Stories } from "../../components/dashboard/stories/stories";
@@ -10,6 +10,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiCallingService } from '../../services/api/api-calling.service';
 import { User } from '../../interface/user.interface';
 import { Toastr } from '../../services/toastr/toastr';
+import { DataUpdate } from '../../services/userData/data-update';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,25 +24,30 @@ export class Dashboard implements OnInit{
   url:string = "";
   userData?:User;
   userFollowers?:any;
+  runAfterPostCreate?:boolean = false;
   
   constructor(
     private _userData:UserDataStore,
     private _route:ActivatedRoute,
     private _apiCall:ApiCallingService,
-    private _tostr:Toastr
+    private _tostr:Toastr,
+    private _refData:DataUpdate
   ){}
 
   ngOnInit(): void {
     this.url = environment.IMG_BASEURL;
 
-    this._userData.glbUserData.subscribe(val => {
-      this.currentUser = val.user;
+    // this get data from the user service
+    this._userData.user$.subscribe(user => {
+      if(!user) return;
+      this.userData = user;
+      this.currentUser = user;
 
       // Now currentUser is definitely available
       this.getUser(this.currentUser);
     });
   }
-
+  
   // Get user data
   getUser(userId:any){
     // Call api for the user details
@@ -59,6 +65,5 @@ export class Dashboard implements OnInit{
         console.error("API call failed", err);
       }
     });
-  }
-  
+  }  
 }
