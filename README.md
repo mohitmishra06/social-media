@@ -17,9 +17,10 @@ backend
 frontend
 
 Navigate into each folder and follow the instructions below.
-
+```
 #### Backend
 
+```bash
 1. Navigate to the backend folder.
     cd backend
 
@@ -47,8 +48,10 @@ Navigate into each folder and follow the instructions below.
     python manage.py runserver
 
 Backend is now ready to use.
-
+```
 #### Frontend
+
+```bash
 1. Navigate to the frontend folder:
     cd frontend
 
@@ -58,36 +61,47 @@ Backend is now ready to use.
 3. Run the Angular development server:
     ng serve
 Frontend is now ready to use.
-
+```
 ## Screenshots
 
+```bash
 Below are some screenshots showcasing the UI and features of the Social Media App.
-
+```
 ### Login Pagg
+
+```bash
 If you already have an account, you can log in using your credentials.
 
-![Login Page](images/login-page.png)
-
+![Login Page](https://raw.githubusercontent.com/mohitmishra06/social-media/main/images/login-page.png)
+```
 ### Sign Up Page
+
+```bash
 If you do not have an account, use the sign-up option to register.
 You must provide a valid email address to receive an OTP.
 
-![SignUp Page](images/sign-up.png)
-
+![SignUp Page](https://raw.githubusercontent.com/mohitmishra06/social-media/main/images/sign-up.png)
+```
 ### OTP Verification
+
+```bash
 Enter the OTP received on your registered email address to complete verification.
 
-![OTP-Varification Page](images/otp-varification.png)
-
+![OTP Verification Page](https://raw.githubusercontent.com/mohitmishra06/social-media/main/images/otp-varification.png)
+```
 ### Password & Username Setup
+
+```bash
 After successful OTP verification, you can set a new password and optionally change your username.
 
-![Password-change Page](images/password-change.png)
+![Password Change Page](https://raw.githubusercontent.com/mohitmishra06/social-media/main/images/password-change.png)
 
 Once the process is complete, you are successfully registered.
 Log in and start your journey with us
-
+```
 ## Features
+
+```bash
 Users can:
     - Create stories
     - Create posts
@@ -98,3 +112,4 @@ Users can:
     - View followers' posts on their profile page
     - Add emojis in posts and comments
     - On scrolling api call and data will load automatically.
+```
