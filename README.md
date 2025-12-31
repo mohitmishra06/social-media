@@ -97,3 +97,4 @@ Users can:
     - View followers' stories
     - View followers' posts on their profile page
     - Add emojis in posts and comments
+    - On scrolling api call and data will load automatically.
