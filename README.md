@@ -71,31 +71,34 @@ Below are some screenshots showcasing the UI and features of the Social Media Ap
 
 ```bash
 If you already have an account, you can log in using your credentials.
-
-![Login Page](https://raw.githubusercontent.com/mohitmishra06/social-media/main/images/login-page.png)
 ```
+
+![Login Page](/images/login-page.png)
 ### Sign Up Page
 
 ```bash
 If you do not have an account, use the sign-up option to register.
 You must provide a valid email address to receive an OTP.
+```
 
 ![SignUp Page](https://raw.githubusercontent.com/mohitmishra06/social-media/main/images/sign-up.png)
-```
+
 ### OTP Verification
 
 ```bash
 Enter the OTP received on your registered email address to complete verification.
+```
 
 ![OTP Verification Page](https://raw.githubusercontent.com/mohitmishra06/social-media/main/images/otp-varification.png)
-```
+
 ### Password & Username Setup
 
 ```bash
 After successful OTP verification, you can set a new password and optionally change your username.
-
+```
 ![Password Change Page](https://raw.githubusercontent.com/mohitmishra06/social-media/main/images/password-change.png)
 
+```bash
 Once the process is complete, you are successfully registered.
 Log in and start your journey with us
 ```
