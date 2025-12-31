@@ -102,6 +102,14 @@ After successful OTP verification, you can set a new password and optionally cha
 Once the process is complete, you are successfully registered.
 Log in and start your journey with us
 ```
+
+## Project Preview
+```bash
+You can watch a full walkthrough of this project on my playlist:
+
+```
+[![Watch Project Preview](/images/dashboard.png)](https://youtu.be/0jydN3_XIIY)
+
 ## Features
 
 ```bash
